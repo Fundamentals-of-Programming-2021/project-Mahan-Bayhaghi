@@ -67,7 +67,7 @@ void create_map_array ( const char* map_name , properties arr[10][20])
     }
 }
 
-void DRAW_LAND ( SDL_Renderer *renderer , properties land , int length , int height , int x , int y )
+void DRAW_LAND ( SDL_Renderer *renderer , properties land , int length , int height , Sint16 x , Sint16 y )
 {
 //    SDL_RenderDrawLine( renderer , x-length/2 , y-height/2 , x+length/2 , y-height/2) ;
     SDL_Rect border = { .x=x-length/2 , .y=y-height/2 , .w = length , .h=height } ;
@@ -75,7 +75,11 @@ void DRAW_LAND ( SDL_Renderer *renderer , properties land , int length , int hei
     if ( land.state_condition == -1 )
         boxColor(renderer , x-length/2 , y-height/2 , x+length/2 , y+height/2 , 0xffffff00 ) ;
     else
-        boxColor(renderer , x-length/2 , y-height/2 , x+length/2 , y+height/2 , COLORS[land.owner]) ;
+    {
+        boxColor(renderer, x - length / 2, y - height / 2, x + length / 2, y + height / 2, COLORS[land.owner]);
+        if ( land.soldier_production_rate != 0 )
+            filledCircleColor(renderer , x-length/4 , y-height/4 ,  2 , 0xff000000) ;
+    }
     SDL_SetRenderDrawColor(renderer , 0x00 , 0x00 , 0x00 , 0xff) ;
     SDL_RenderDrawRect(renderer , &border ) ;
 }
@@ -105,7 +109,6 @@ int main()
 
     properties map_array[10][20] ;
     create_map_array("hello" , map_array) ;
-
 
     SDL_Window *sdlWindow = SDL_CreateWindow("Stateio" , SDL_WINDOWPOS_CENTERED , SDL_WINDOWPOS_CENTERED , WIDTH , HEIGHT , SDL_WINDOW_OPENGL) ;
 
