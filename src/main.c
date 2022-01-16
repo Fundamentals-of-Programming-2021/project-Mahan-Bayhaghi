@@ -9,14 +9,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
 
 const int WIDTH = 800 ;
 const int HEIGHT = 600 ;
 const int FPS = 60 ;
 const int PRO_RATE = 3 ;
 const int INIT_SOLDIER = 25 ;
+const int NUMBER_OF_PLAYERS = 3 ;
 
-Uint32 COLORS[4] = { 0xffa39d8c , 0xff3434eb , 0xff6ebe34 , 0xffffffff };
+Uint32 COLORS[4] = { 0xffa39d8c , 0xff3434eb , 0xff6ebe34 , 0xffb00500 };
 
 typedef  struct properties {
     int state_condition  ;          // -1 --> null // 0 --> neutral // 1 --> in_use //
@@ -67,9 +69,35 @@ void create_map_array ( const char* map_name , properties arr[10][20])
     }
 }
 
+void RANDOMIZE_MAP ( properties arr[10][20] , int players_num )
+{
+    // 0 --> NEUTRAL LAND WITH NO MILITARY BASE
+    // 1 TO players_num --> PLAYERS' LAND WITH MILITARY BASE AT THE BEGINNING OF THE GAME
+    // ALL PLAYERS WILL HAVE AT LEAST 1 AND AT MAX 3 LANDS AT THE BEGINNING OF THE GAME
+    srand(time(NULL)) ;
+    int land_num ;
+    int rand_x ;
+    int rand_y ;
+    for ( int i=1 ; i<=players_num ; i++ )
+    {
+        land_num = rand() % 2 + 1 ;
+        for ( land_num ; land_num>0 ; land_num-- )
+        {
+            rand_x = rand() % 20 ;
+            rand_y = rand() % 10 ;
+            while ( arr[rand_y][rand_x].owner!=0 || arr[rand_y][rand_x].soldier_production_rate==0 )
+            {
+                rand_x = rand() % 20 ;
+                rand_y = rand() % 10 ;
+            }
+            arr[rand_y][rand_x].owner = i ;
+            arr[rand_y][rand_x].state_condition = 0 ;
+        }
+    }
+}
+
 void DRAW_LAND ( SDL_Renderer *renderer , properties land , int length , int height , Sint16 x , Sint16 y )
 {
-//    SDL_RenderDrawLine( renderer , x-length/2 , y-height/2 , x+length/2 , y-height/2) ;
     SDL_Rect border = { .x=x-length/2 , .y=y-height/2 , .w = length , .h=height } ;
 
     if ( land.state_condition == -1 )
@@ -107,21 +135,53 @@ int main()
         return 0;
     }
 
-    properties map_array[10][20] ;
-    create_map_array("hello" , map_array) ;
-
     SDL_Window *sdlWindow = SDL_CreateWindow("Stateio" , SDL_WINDOWPOS_CENTERED , SDL_WINDOWPOS_CENTERED , WIDTH , HEIGHT , SDL_WINDOW_OPENGL) ;
-
     SDL_Renderer *sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED) ;
 
+    properties map_array[10][20] ;
+    create_map_array("hello" , map_array) ;
+    RANDOMIZE_MAP(map_array , NUMBER_OF_PLAYERS) ;
+
+
     int i=0 ;
-    int x = 400 ;
-    int y = 300 ;
-    while ( i<1000 )
+
+    SDL_bool shallExit = SDL_FALSE ;
+
+    int little_circle = 0 ;
+    while ( !shallExit )
     {
         SDL_SetRenderDrawColor(sdlRenderer , 0xff , 0xff , 0xff ,0xff) ;
         SDL_RenderClear(sdlRenderer) ;
+
         GAME_BACKGROUND(sdlRenderer , map_array , 65 , 60) ;
+
+
+        SDL_Event sdlEvent;
+
+        while (SDL_PollEvent(&sdlEvent)) {
+            int x = sdlEvent.motion.x ;
+            int y = sdlEvent.motion.y ;
+            switch (sdlEvent.type)
+            {
+                case SDL_QUIT:
+                    shallExit = SDL_TRUE;
+                    break;
+                case SDL_MOUSEMOTION:
+                    printf("mouse is moving\n") ;
+                    printf("x is : %d   y is : %d\n" , sdlEvent.motion.x , sdlEvent.motion.y);
+                    if ( little_circle == 1)
+                        filledCircleColor(sdlRenderer , x , y , 5 , 0xff4f5500) ;
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    little_circle = 1 ;
+                    printf("mouse is being pushed at (%d , %d)\n" , x , y) ;
+                    break;
+                case SDL_MOUSEBUTTONUP:
+                    printf("mouse is up now\n") ;
+                    little_circle = 0 ;
+                    break;
+            }
+        }
         SDL_RenderPresent(sdlRenderer) ;
         SDL_Delay(1000/FPS) ;
         i++;
