@@ -1,5 +1,7 @@
 #include <SDL.h>
 #include <SDL2_gfxPrimitives.h>
+#include <SDL_mixer.h>
+#include <SDL_audio.h>
 
 #ifdef main
 #undef main
@@ -8,15 +10,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdbool.h>
+#include "background_handling.h"
+#include "map_handling.h"
 
 const int WIDTH = 800 ;
 const int HEIGHT = 600 ;
-const int FPS = 80 ;
-const int PRO_RATE = 3 ;
+const int FPS = 60 ;
+const int PRO_RATE = 1 ;
 const int INIT_SOLDIER = 25 ;
 const int NUMBER_OF_PLAYERS = 3 ;
+const int LAND_WIDTH = 30 ;
+const int LAND_HEIGHT = 40 ;
 
 Uint32 COLORS[4] = { 0xffa39d8c , 0xff3434eb , 0xff6ebe34 , 0xffb00500 };
+                        // grey          // blue          // green        // red
 
 typedef  struct properties {
     int state_condition  ;          // -1 --> null // 0 --> neutral // 1 --> in_use //
@@ -58,13 +66,6 @@ void create_map_array ( const char* map_name , properties arr[10][20])
             c = fgetc(map_txt) ;
         }
     }
-    printf("map is \n") ;
-    for ( int i=0 ; i<10 ; i++)
-    {
-        for ( int j=0 ; j<20 ; j++)
-            printf("%4d" , arr[i][j].soldiers ) ;
-        printf("\n") ;
-    }
 }
 
 void RANDOMIZE_MAP ( properties arr[10][20] , int players_num )
@@ -96,8 +97,6 @@ void RANDOMIZE_MAP ( properties arr[10][20] , int players_num )
 
 void DRAW_LAND ( SDL_Renderer *renderer , properties land , int length , int height , Sint16 x , Sint16 y )
 {
-//    if ( land.state_condition == -1 )
-//        boxColor(renderer , x-length/2 , y-height/2 , x+length/2 , y+height/2 , 0xffffffff ) ;
     if ( land.state_condition != -1 )
     {
         SDL_Rect border = { .x=x-length/2 , .y=y-height/2 , .w = length , .h=height } ;
@@ -129,38 +128,97 @@ void GAME_BACKGROUND (SDL_Renderer *renderer , properties arr[10][20] , int leng
     }
 }
 
+void ADD_SOLDIERS ( properties map_arr[10][20] )
+{
+    for ( int i=0 ; i<10 ; i++)
+    {
+        for ( int j=0 ; j<20 ; j++)
+        {
+            properties* land = &map_arr[i][j] ;
+            if ( land->soldiers < 120 && land->soldier_production_rate!=0) {
+                land->soldiers += land->soldier_production_rate;
+                if (land->soldiers > 120)
+                    land->soldiers = 120;
+            }
+        }
+    }
+}
+
 int main()
 {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO) < 0) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return 0;
     }
 
+    for (int i = 0; i < SDL_GetNumAudioDrivers(); ++i) {
+        const char* driver_name = SDL_GetAudioDriver(i);
+        printf("audio driver name : %s\n" , driver_name) ;
+        if (SDL_AudioInit(driver_name)) {
+            printf("Audio driver failed to initialize: %s\n", driver_name);
+            continue;
+        }
+    }
+
+    test_func() ;
+    map_handling_test_func() ;
+
     SDL_Window *sdlWindow = SDL_CreateWindow("State.io" , SDL_WINDOWPOS_CENTERED , SDL_WINDOWPOS_CENTERED , WIDTH , HEIGHT , SDL_WINDOW_OPENGL) ;
     SDL_Renderer *sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED) ;
+
+    SDL_SetRenderDrawColor(sdlRenderer , 0xff , 0xff , 0xff , 0xff ) ;
+    SDL_RenderClear(sdlRenderer) ;
+    land* map_arr = malloc(sizeof(land) * 14*30 ) ;
+    int counter = GENERATE_HEXAGON_RANDOM_MAP(3 , WIDTH , HEIGHT , map_arr , 20 ) ;
+    for ( int i=0 ; i<counter ; i++)
+    {
+        int center_x = map_arr[i].x ;
+        int center_y = map_arr[i].y ;
+        int a = 30 ;
+        Sint16 vx[6] = { 10 , 20 , 45 , 60 , 32 , 79};
+        Sint16 vy[6] = { 120 , 48 , 90 , 68 , 123 , 80};
+        vx[0] = center_x - a;
+        vy[0] = center_y;
+        vx[1] = center_x - a / 2;
+        vy[1] = center_y - (1.7 * a / 2);
+        vx[2] = center_x + a / 2;
+        vy[2] = center_y - (1.7 * a / 2);
+        vx[3] = center_x + a;
+        vy[3] = center_y;
+        vx[4] = center_x + a / 2;
+        vy[4] = center_y + (1.7 * a / 2);
+        vx[5] = center_x - a / 2;
+        vy[5] = center_y + (1.7 * a / 2);
+        filledPolygonColor(sdlRenderer, vx, vy, 6, COLORS[i]);
+    }
+    SDL_RenderPresent(sdlRenderer) ;
+    SDL_Delay(15000) ;
 
     properties map_array[10][20] ;
     create_map_array("hello" , map_array) ;
     RANDOMIZE_MAP(map_array , NUMBER_OF_PLAYERS) ;
 
+    SDL_Texture *img = getImageTexture(sdlRenderer , "../back.bmp") ;
+    SDL_Rect texture_rect = {.x=0, .y=0, .w=WIDTH, .h=HEIGHT};
+    if ( ShowMenu(sdlWindow , sdlRenderer , WIDTH , HEIGHT , img) == 0 )
+        return 0 ;
 
     int i=0 ;
 
     SDL_bool shallExit = SDL_FALSE ;
-
     int little_circle = 0 ;
     while ( !shallExit )
     {
-        i++ ;
+        i %= 200000 ;
+
         SDL_SetRenderDrawColor(sdlRenderer , 0xff , 0xff , 0xff ,0xff) ;
         SDL_RenderClear(sdlRenderer) ;
+        SDL_RenderCopy(sdlRenderer, img , NULL, &texture_rect);
+        GAME_BACKGROUND(sdlRenderer , map_array , LAND_WIDTH , LAND_HEIGHT) ;
 
-        GAME_BACKGROUND(sdlRenderer , map_array , 65 , 45) ;
 
-//        char* buffer = malloc(sizeof (char) * 50) ;
-//        sprintf(buffer , "my score is %d " , i/75) ;
-//        stringRGBA(sdlRenderer , 5 , 5 , buffer , 0 , 0 , 0 , 255) ;
-
+        if ( i%80 == 0 )
+            ADD_SOLDIERS(map_array) ;
 
         SDL_Event sdlEvent;
         while (SDL_PollEvent(&sdlEvent)) {
@@ -169,21 +227,25 @@ int main()
             switch (sdlEvent.type)
             {
                 case SDL_QUIT:
+                    printf("program Exited because user wanted !\n") ;
                     shallExit = SDL_TRUE;
                     break;
                 case SDL_MOUSEMOTION:
-                    printf("mouse is moving\n") ;
-                    printf("x is : %d   y is : %d\n" , sdlEvent.motion.x , sdlEvent.motion.y);
                     if ( little_circle == 1)
                         filledCircleColor(sdlRenderer , x , y , 5 , 0xff4f5500) ;
                     break;
                 case SDL_MOUSEBUTTONDOWN:
                     little_circle = 1 ;
                     printf("mouse is being pushed at (%d , %d)\n" , x , y) ;
-                    printf("dar khane (%d,%d) array hastim " , x/65 , y/45 ) ;
+                    printf("land (%d , %d)\n " , x/LAND_WIDTH , y/LAND_HEIGHT );
+                    printf("owner : %d\n" , map_array[y/LAND_HEIGHT][x/LAND_WIDTH].owner) ;
+                    if (  map_array[y/LAND_HEIGHT][x/LAND_WIDTH].owner == 1 )
+                        printf("it is your land \n") ;
+                    else
+                        printf("it is not your land\n") ;
                     break;
                 case SDL_MOUSEBUTTONUP:
-                    printf("mouse is up now\n") ;
+                    printf("destination is (%d,%d}\n" , x/LAND_WIDTH , y/LAND_HEIGHT) ;
                     little_circle = 0 ;
                     break;
             }
@@ -193,9 +255,9 @@ int main()
         i++;
     }
 
-
     // Quitting window and program //
     SDL_DestroyWindow(sdlWindow) ;
+
     SDL_Quit() ;
     printf("all done") ;
     return  0 ;

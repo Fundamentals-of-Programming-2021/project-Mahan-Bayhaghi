@@ -49,8 +49,22 @@ cmake_ninja_workdir = D$:/Sharif/Daneshgah$ stuff/BP$ c$ exercises/fop-project/c
 
 build cmake_object_order_depends_target_fop-project: phony || CMakeFiles/fop-project.dir
 
+build CMakeFiles/fop-project.dir/src/background_handling.c.obj: C_COMPILER__fop-project_Debug D$:/Sharif/Daneshgah$ stuff/BP$ c$ exercises/fop-project/src/background_handling.c || cmake_object_order_depends_target_fop-project
+  DEP_FILE = CMakeFiles\fop-project.dir\src\background_handling.c.obj.d
+  FLAGS = -g -std=gnu11
+  INCLUDES = -I"D:/Sharif/Daneshgah stuff/BP c exercises/fop-project/sdl2/sdl2-include" -I"D:/Sharif/Daneshgah stuff/BP c exercises/fop-project/sdl2/sdl2-gfx-include"
+  OBJECT_DIR = CMakeFiles\fop-project.dir
+  OBJECT_FILE_DIR = CMakeFiles\fop-project.dir\src
+
 build CMakeFiles/fop-project.dir/src/main.c.obj: C_COMPILER__fop-project_Debug D$:/Sharif/Daneshgah$ stuff/BP$ c$ exercises/fop-project/src/main.c || cmake_object_order_depends_target_fop-project
   DEP_FILE = CMakeFiles\fop-project.dir\src\main.c.obj.d
+  FLAGS = -g -std=gnu11
+  INCLUDES = -I"D:/Sharif/Daneshgah stuff/BP c exercises/fop-project/sdl2/sdl2-include" -I"D:/Sharif/Daneshgah stuff/BP c exercises/fop-project/sdl2/sdl2-gfx-include"
+  OBJECT_DIR = CMakeFiles\fop-project.dir
+  OBJECT_FILE_DIR = CMakeFiles\fop-project.dir\src
+
+build CMakeFiles/fop-project.dir/src/map_handling.c.obj: C_COMPILER__fop-project_Debug D$:/Sharif/Daneshgah$ stuff/BP$ c$ exercises/fop-project/src/map_handling.c || cmake_object_order_depends_target_fop-project
+  DEP_FILE = CMakeFiles\fop-project.dir\src\map_handling.c.obj.d
   FLAGS = -g -std=gnu11
   INCLUDES = -I"D:/Sharif/Daneshgah stuff/BP c exercises/fop-project/sdl2/sdl2-include" -I"D:/Sharif/Daneshgah stuff/BP c exercises/fop-project/sdl2/sdl2-gfx-include"
   OBJECT_DIR = CMakeFiles\fop-project.dir
@@ -64,9 +78,9 @@ build CMakeFiles/fop-project.dir/src/main.c.obj: C_COMPILER__fop-project_Debug D
 #############################################
 # Link the executable fop-project.exe
 
-build fop-project.exe: C_EXECUTABLE_LINKER__fop-project_Debug CMakeFiles/fop-project.dir/src/main.c.obj | ../sdl2/sdl2-lib/libSDL2.a ../sdl2/sdl2-lib/libSDL2main.a ../sdl2/sdl2-gfx-lib/libsdl-gfx.a
+build fop-project.exe: C_EXECUTABLE_LINKER__fop-project_Debug CMakeFiles/fop-project.dir/src/background_handling.c.obj CMakeFiles/fop-project.dir/src/main.c.obj CMakeFiles/fop-project.dir/src/map_handling.c.obj | ../sdl2/sdl2-lib/libSDL2.a ../sdl2/sdl2-lib/libSDL2main.a ../sdl2/sdl2-lib/libSDL2_mixer.a ../sdl2/sdl2-lib/libSDL2_ttf.a ../sdl2/sdl2-gfx-lib/libsdl-gfx.a
   FLAGS = -g
-  LINK_LIBRARIES = ../sdl2/sdl2-lib/libSDL2.a  ../sdl2/sdl2-lib/libSDL2main.a  ../sdl2/sdl2-gfx-lib/libsdl-gfx.a  -lm  -ldinput8  -ldxguid  -ldxerr8  -luser32  -lgdi32  -lwinmm  -limm32  -lole32  -loleaut32  -lshell32  -lversion  -luuid  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
+  LINK_LIBRARIES = ../sdl2/sdl2-lib/libSDL2.a  ../sdl2/sdl2-lib/libSDL2main.a  ../sdl2/sdl2-lib/libSDL2_mixer.a  ../sdl2/sdl2-lib/libSDL2_ttf.a  ../sdl2/sdl2-gfx-lib/libsdl-gfx.a  -lm  -ldinput8  -ldxguid  -ldxerr8  -luser32  -lgdi32  -lwinmm  -limm32  -lole32  -loleaut32  -lshell32  -lversion  -luuid  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\fop-project.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
@@ -79,7 +93,7 @@ build fop-project.exe: C_EXECUTABLE_LINKER__fop-project_Debug CMakeFiles/fop-pro
 # Utility command for edit_cache
 
 build CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D "D:\Sharif\Daneshgah stuff\BP c exercises\fop-project\cmake-build-debug" && "C:\Program Files\JetBrains\CLion 2021.3.2\bin\cmake\win\bin\cmake.exe" -E echo "No interactive CMake dialog available.""
+  COMMAND = cmd.exe /C "cd /D "D:\Sharif\Daneshgah stuff\BP c exercises\fop-project\cmake-build-debug" && "C:\Program Files\JetBrains\CLion 2021.3.1\bin\cmake\win\bin\cmake.exe" -E echo "No interactive CMake dialog available.""
   DESC = No interactive CMake dialog available...
   restat = 1
 
@@ -90,7 +104,7 @@ build edit_cache: phony CMakeFiles/edit_cache.util
 # Utility command for rebuild_cache
 
 build CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D "D:\Sharif\Daneshgah stuff\BP c exercises\fop-project\cmake-build-debug" && "C:\Program Files\JetBrains\CLion 2021.3.2\bin\cmake\win\bin\cmake.exe" --regenerate-during-build -S"D:\Sharif\Daneshgah stuff\BP c exercises\fop-project" -B"D:\Sharif\Daneshgah stuff\BP c exercises\fop-project\cmake-build-debug""
+  COMMAND = cmd.exe /C "cd /D "D:\Sharif\Daneshgah stuff\BP c exercises\fop-project\cmake-build-debug" && "C:\Program Files\JetBrains\CLion 2021.3.1\bin\cmake\win\bin\cmake.exe" --regenerate-during-build -S"D:\Sharif\Daneshgah stuff\BP c exercises\fop-project" -B"D:\Sharif\Daneshgah stuff\BP c exercises\fop-project\cmake-build-debug""
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -119,14 +133,14 @@ build all: phony fop-project.exe
 #############################################
 # Re-run CMake if any of its inputs changed.
 
-build build.ninja: RERUN_CMAKE | ../CMakeLists.txt C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/CMakeCInformation.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/CMakeCommonLanguageInclude.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/CMakeGenericSystem.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/CMakeInitializeConfigs.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/CMakeLanguageInformation.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/CMakeRCInformation.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/CMakeSystemSpecificInformation.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/CMakeSystemSpecificInitialize.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/Compiler/CMakeCommonCompilerMacros.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/Compiler/GNU-C.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/Compiler/GNU.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows-GNU-C-ABI.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows-GNU-C.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows-GNU.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows-windres.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/Platform/WindowsPaths.cmake CMakeCache.txt CMakeFiles/3.21.1/CMakeCCompiler.cmake CMakeFiles/3.21.1/CMakeRCCompiler.cmake CMakeFiles/3.21.1/CMakeSystem.cmake
+build build.ninja: RERUN_CMAKE | ../CMakeLists.txt C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/CMakeCInformation.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/CMakeCommonLanguageInclude.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/CMakeGenericSystem.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/CMakeInitializeConfigs.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/CMakeLanguageInformation.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/CMakeRCInformation.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/CMakeSystemSpecificInformation.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/CMakeSystemSpecificInitialize.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/Compiler/CMakeCommonCompilerMacros.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/Compiler/GNU-C.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/Compiler/GNU.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows-GNU-C-ABI.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows-GNU-C.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows-GNU.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows-windres.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/Platform/WindowsPaths.cmake CMakeCache.txt CMakeFiles/3.21.1/CMakeCCompiler.cmake CMakeFiles/3.21.1/CMakeRCCompiler.cmake CMakeFiles/3.21.1/CMakeSystem.cmake
   pool = console
 
 
 #############################################
 # A missing CMake input file is not an error.
 
-build ../CMakeLists.txt C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/CMakeCInformation.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/CMakeCommonLanguageInclude.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/CMakeGenericSystem.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/CMakeInitializeConfigs.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/CMakeLanguageInformation.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/CMakeRCInformation.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/CMakeSystemSpecificInformation.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/CMakeSystemSpecificInitialize.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/Compiler/CMakeCommonCompilerMacros.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/Compiler/GNU-C.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/Compiler/GNU.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows-GNU-C-ABI.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows-GNU-C.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows-GNU.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows-windres.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/Platform/WindowsPaths.cmake CMakeCache.txt CMakeFiles/3.21.1/CMakeCCompiler.cmake CMakeFiles/3.21.1/CMakeRCCompiler.cmake CMakeFiles/3.21.1/CMakeSystem.cmake: phony
+build ../CMakeLists.txt C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/CMakeCInformation.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/CMakeCommonLanguageInclude.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/CMakeGenericSystem.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/CMakeInitializeConfigs.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/CMakeLanguageInformation.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/CMakeRCInformation.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/CMakeSystemSpecificInformation.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/CMakeSystemSpecificInitialize.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/Compiler/CMakeCommonCompilerMacros.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/Compiler/GNU-C.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/Compiler/GNU.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows-GNU-C-ABI.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows-GNU-C.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows-GNU.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows-windres.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/Platform/Windows.cmake C$:/Program$ Files/JetBrains/CLion$ 2021.3.1/bin/cmake/win/share/cmake-3.21/Modules/Platform/WindowsPaths.cmake CMakeCache.txt CMakeFiles/3.21.1/CMakeCCompiler.cmake CMakeFiles/3.21.1/CMakeRCCompiler.cmake CMakeFiles/3.21.1/CMakeSystem.cmake: phony
 
 
 #############################################
