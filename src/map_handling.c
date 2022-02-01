@@ -4,7 +4,6 @@
 
 #include "map_handling.h"
 
-
 void map_handling_test_func()
 {
     printf("this is a test from map_handling header\n") ;
@@ -34,32 +33,63 @@ void GENERATE_RANDOM_MAP ( int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map 
     }
 }
 
-int GENERATE_HEXAGON_RANDOM_MAP ( int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map , int HEXAGON_a)
+void ShowHexagonBackground ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , land* map , int counter , Sint16 a)
+{
+    for ( int i=0 ; i<counter ; i++)
+    {
+        Sint16 center_x = map[counter].x ;
+        Sint16 center_y = map[counter].y ;
+        Sint16 * vx = malloc(sizeof(Sint16) * 6 ) ;
+        Sint16 * vy = malloc(sizeof(Sint16) * 6 ) ;
+        vx[0] = (center_x-a) ;  vx[1] = (center_x-a/2) ; vx[2] = (center_x+a/2) ;
+        vx[3] = (center_x+a) ;  vx[4] = (center_x+a/2) ; vx[5] =  (center_x-a/2) ;
+//        vx = { (center_x-a) , (center_x-a/2) , (center_x+a/2) , (center_x+a) , (center_x+a/2) , (center_x-a/2) } ;
+        vy[0] = (center_y) ;  vy[1] = (center_y-(sqrt(3)*a/2)) ; vy[2] = (center_y-(sqrt(3)*a/2)) ;
+        vy[3] = (center_y) ;  vy[4] = (center_y+(sqrt(3)*a/2)) ; vy[5] = (center_y+(sqrt(3)*a/2)) ;
+//        vy = { (center_y) , (center_y-(sqrt(3)*a/2)) , (center_y-(sqrt(3)*a/2)) , (center_y) , (center_y+(sqrt(3)*a/2)) , (center_y+(sqrt(3)*a/2))};
+        polygonColor(sdlRenderer , vx , vy , 6 , 0xff0059ff) ;
+
+    }
+}
+
+
+int GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map , int HEXAGON_a)
 {
     srand(time(0)) ;
-    int start_x_pos = rand()%40 + 20 ;
-    int start_y_pos = rand()%40 + 20 ;
+    Sint16 start_x_pos = rand()%40 + 40 ;
+    Sint16 start_y_pos = rand()%40 + 60 ;
 
-    int center_x ;
-    int center_y = start_y_pos ;
+    Sint16 center_x ;
+    Sint16 center_y = start_y_pos ;
 
     int counter = 0 ;
 
-    for ( int i=0 ; i<14 ; i++){
-        if (i%2==0)
+    for ( int i=0 ; i<12 ; i++)
+    {
+        if ( i%2==0 )
             center_x = start_x_pos ;
         else
-            center_x = start_x_pos+HEXAGON_a ;
+            center_x = start_x_pos+ 1.5*HEXAGON_a ;
 
-        for ( int j=0 ; j<30 ; j++) {
-            if (rand() % 8 == 0 || rand()%21 == 2 || rand()%40 == 0 ) {
-                map[counter].x = center_x;
-                map[counter].y = start_y_pos;
-                counter++ ;
-            }
-            center_x += 2.3*HEXAGON_a ;
+        Sint16 a = HEXAGON_a ;
+        for ( int j=0 ; j<7 ; j++) {
+            map[counter].x = center_x ;
+            map[counter].y = center_y ;
+            printf("%d --> %d %d\n" , counter , center_x , center_y ) ;
+            Sint16 *vx = malloc(6 * sizeof(Sint16)) ;
+            Sint16 *vy = malloc(6 * sizeof(Sint16)) ;
+            vx[0] = (center_x-a) ;  vx[1] = (center_x-a/2) ; vx[2] = (center_x+a/2) ;
+            vx[3] = (center_x+a) ;  vx[4] = (center_x+a/2) ; vx[5] =  (center_x-a/2) ;
+            vy[0] = (center_y) ;  vy[1] = (center_y-(sqrt(3)*a/2)) ; vy[2] = (center_y-(sqrt(3)*a/2)) ;
+            vy[3] = (center_y) ;  vy[4] = (center_y+(sqrt(3)*a/2)) ; vy[5] = (center_y+(sqrt(3)*a/2)) ;
+            filledPolygonColor(sdlRenderer , vx , vy , 6 , 0xff7f59ff) ;
+            polygonColor(sdlRenderer , vx , vy , 6 , 0xffffffff) ;
+            counter++;
+            center_x += 3*HEXAGON_a ;
         }
-        start_y_pos += 2.3*HEXAGON_a+3;
+        center_y += (Sint16) (sqrt(3)*HEXAGON_a/2) ;
     }
+    ShowHexagonBackground(sdlWindow , sdlRenderer , map , counter , HEXAGON_a ) ;
     return  counter ;
 }
+

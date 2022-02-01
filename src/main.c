@@ -11,8 +11,10 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
-#include "background_handling.h"
+
 #include "map_handling.h"
+#include "background_handling.h"
+
 
 const int WIDTH = 800 ;
 const int HEIGHT = 600 ;
@@ -168,29 +170,11 @@ int main()
 
     SDL_SetRenderDrawColor(sdlRenderer , 0xff , 0xff , 0xff , 0xff ) ;
     SDL_RenderClear(sdlRenderer) ;
-    land* map_arr = malloc(sizeof(land) * 14*30 ) ;
-    int counter = GENERATE_HEXAGON_RANDOM_MAP(3 , WIDTH , HEIGHT , map_arr , 20 ) ;
-    for ( int i=0 ; i<counter ; i++)
-    {
-        int center_x = map_arr[i].x ;
-        int center_y = map_arr[i].y ;
-        int a = 30 ;
-        Sint16 vx[6] = { 10 , 20 , 45 , 60 , 32 , 79};
-        Sint16 vy[6] = { 120 , 48 , 90 , 68 , 123 , 80};
-        vx[0] = center_x - a;
-        vy[0] = center_y;
-        vx[1] = center_x - a / 2;
-        vy[1] = center_y - (1.7 * a / 2);
-        vx[2] = center_x + a / 2;
-        vy[2] = center_y - (1.7 * a / 2);
-        vx[3] = center_x + a;
-        vy[3] = center_y;
-        vx[4] = center_x + a / 2;
-        vy[4] = center_y + (1.7 * a / 2);
-        vx[5] = center_x - a / 2;
-        vy[5] = center_y + (1.7 * a / 2);
-        filledPolygonColor(sdlRenderer, vx, vy, 6, COLORS[i]);
-    }
+
+
+    land* map_arr = malloc(sizeof(land) * 15*30 ) ;
+    int counter = GENERATE_HEXAGON_RANDOM_MAP(sdlWindow , sdlRenderer , 3 , WIDTH , HEIGHT , map_arr , 35 ) ;
+
     SDL_RenderPresent(sdlRenderer) ;
     SDL_Delay(15000) ;
 
