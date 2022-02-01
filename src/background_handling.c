@@ -47,48 +47,6 @@ int ShowMenu (SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int WIDTH , in
         SDL_RenderCopy(sdlRenderer, start_btn , NULL, &start_rect);
         SDL_RenderCopy(sdlRenderer, quit_btn , NULL, &quit_rect);
 
-        Sint16 vx[6] = { 10 , 20 , 45 , 60 , 32 , 79};
-        Sint16 vy[6] = { 120 , 48 , 90 , 68 , 123 , 80};
-
-        int* x_coords = calloc(30 , sizeof (int)) ;
-        int* y_coords = calloc(30 , sizeof (int)) ;
-        int center_x;
-        int center_y;
-        int a = 30 ;
-        srand(time(0)) ;
-        for ( int i=0 ; i<30 ; i++) {
-            int repeat =1 ;
-            while ( repeat ) {
-                center_x = rand() % WIDTH;
-                center_y = rand() % HEIGHT;
-                repeat = 0;
-                for (int j = 0; j < 30; j++) {
-                    if ( y_coords[j]!=0 && x_coords[j]!=0 ) {
-                        if (abs(center_y - y_coords[j]) < 3 * a && abs(center_x - x_coords[j]) < 3 * a)
-                        {
-                            repeat = 1;
-                            srand(time(0) ) ;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            vx[0] = center_x - a;
-            vy[0] = center_y;
-            vx[1] = center_x - a / 2;
-            vy[1] = center_y - (1.7 * a / 2);
-            vx[2] = center_x + a / 2;
-            vy[2] = center_y - (1.7 * a / 2);
-            vx[3] = center_x + a;
-            vy[3] = center_y;
-            vx[4] = center_x + a / 2;
-            vy[4] = center_y + (1.7 * a / 2);
-            vx[5] = center_x - a / 2;
-            vy[5] = center_y + (1.7 * a / 2);
-            filledPolygonColor(sdlRenderer, vx, vy, 6, 0xffff00ff);
-        }
-
 
         int x = sdlEvent.motion.x ;
         int y = sdlEvent.motion.y ;
@@ -110,7 +68,7 @@ int ShowMenu (SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int WIDTH , in
                     if ( x<450 && x>350 && y<350 && y>300)
                     {
                         printf("game started !") ;
-                        SDL_Delay(1000) ;
+                        SDL_Delay(500) ;
                         return 1;
                     }
                     if ( x<450 && x>350 && y<540 && y>500 )

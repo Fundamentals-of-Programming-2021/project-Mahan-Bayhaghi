@@ -3,6 +3,10 @@
 //
 
 #include "map_handling.h"
+#include "background_handling.h"
+
+Uint32 MAP_HANDLING_COLORS[4] = { 0xffa39d8c , 0xff3434eb , 0xff6ebe34 , 0xffb00500 };
+// grey          // blue          // green        // red
 
 void map_handling_test_func()
 {
@@ -33,31 +37,37 @@ void GENERATE_RANDOM_MAP ( int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map 
     }
 }
 
-void ShowHexagonBackground ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , land* map , int counter , Sint16 a)
+int ShowHexagonBackground ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , land* map , int counter , Sint16 a)
 {
     for ( int i=0 ; i<counter ; i++)
     {
-        Sint16 center_x = map[counter].x ;
-        Sint16 center_y = map[counter].y ;
-        Sint16 * vx = malloc(sizeof(Sint16) * 6 ) ;
-        Sint16 * vy = malloc(sizeof(Sint16) * 6 ) ;
+        if ( map[i].x == 0 || map[i].y == 0 )
+            return i ;
+        Sint16 center_x = map[i].x ;
+        Sint16 center_y = map[i].y ;
+        Sint16 *vx = malloc(6 * sizeof(Sint16)) ;
+        Sint16 *vy = malloc(6 * sizeof(Sint16)) ;
         vx[0] = (center_x-a) ;  vx[1] = (center_x-a/2) ; vx[2] = (center_x+a/2) ;
         vx[3] = (center_x+a) ;  vx[4] = (center_x+a/2) ; vx[5] =  (center_x-a/2) ;
-//        vx = { (center_x-a) , (center_x-a/2) , (center_x+a/2) , (center_x+a) , (center_x+a/2) , (center_x-a/2) } ;
         vy[0] = (center_y) ;  vy[1] = (center_y-(sqrt(3)*a/2)) ; vy[2] = (center_y-(sqrt(3)*a/2)) ;
         vy[3] = (center_y) ;  vy[4] = (center_y+(sqrt(3)*a/2)) ; vy[5] = (center_y+(sqrt(3)*a/2)) ;
-//        vy = { (center_y) , (center_y-(sqrt(3)*a/2)) , (center_y-(sqrt(3)*a/2)) , (center_y) , (center_y+(sqrt(3)*a/2)) , (center_y+(sqrt(3)*a/2))};
-        polygonColor(sdlRenderer , vx , vy , 6 , 0xff0059ff) ;
+        filledPolygonColor(sdlRenderer , vx , vy , 6 , MAP_HANDLING_COLORS[map[i].owner_id]) ;
+        polygonColor(sdlRenderer , vx , vy , 6 , 0xffffffff) ;
+
+        char* soldiers_number = malloc(sizeof(char) * 3) ;
+        sprintf(soldiers_number , "%d" , map[i].soldiers_number) ;
+        stringColor(sdlRenderer , center_x-5 , center_y+5 , soldiers_number , 0xff000000) ;
 
     }
 }
 
-
-int GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map , int HEXAGON_a)
+land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map , int HEXAGON_a)
 {
+    int* ownership_watcher = calloc(4 , sizeof(int)) ;
+
     srand(time(0)) ;
-    Sint16 start_x_pos = rand()%40 + 40 ;
-    Sint16 start_y_pos = rand()%40 + 60 ;
+    Sint16 start_x_pos = rand()%40 + 50 ;
+    Sint16 start_y_pos = rand()%40 + 100 ;
 
     Sint16 center_x ;
     Sint16 center_y = start_y_pos ;
@@ -73,23 +83,78 @@ int GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRender
 
         Sint16 a = HEXAGON_a ;
         for ( int j=0 ; j<7 ; j++) {
-            map[counter].x = center_x ;
-            map[counter].y = center_y ;
-            printf("%d --> %d %d\n" , counter , center_x , center_y ) ;
-            Sint16 *vx = malloc(6 * sizeof(Sint16)) ;
-            Sint16 *vy = malloc(6 * sizeof(Sint16)) ;
-            vx[0] = (center_x-a) ;  vx[1] = (center_x-a/2) ; vx[2] = (center_x+a/2) ;
-            vx[3] = (center_x+a) ;  vx[4] = (center_x+a/2) ; vx[5] =  (center_x-a/2) ;
-            vy[0] = (center_y) ;  vy[1] = (center_y-(sqrt(3)*a/2)) ; vy[2] = (center_y-(sqrt(3)*a/2)) ;
-            vy[3] = (center_y) ;  vy[4] = (center_y+(sqrt(3)*a/2)) ; vy[5] = (center_y+(sqrt(3)*a/2)) ;
-            filledPolygonColor(sdlRenderer , vx , vy , 6 , 0xff7f59ff) ;
-            polygonColor(sdlRenderer , vx , vy , 6 , 0xffffffff) ;
-            counter++;
+            if ( rand()%7 == 0 || rand()%5 == 0 || rand()%8 == 0 )
+            {
+                map[counter].x = center_x ;
+                map[counter].y = center_y ;
+
+                if ( rand()%7 == 0 || rand()%10 == 0 || rand()%16 == 0 )   // USER or SYSTEM land //
+                {
+                    map[counter].owner_id = rand() % 3 + 1;
+                    map[counter].soldiers_number = 25;
+                    if (map[counter].owner_id == 1)
+                        map[counter].type = USER;
+                    else
+                        map[counter].type = SYSTEM;
+                    map[counter].production_rate = 2;
+                }
+                                                                            // NEUTRAL land //
+                else {
+                    map[counter].owner_id = 0;
+                    map[counter].soldiers_number = 25;
+                    map[counter].type = NEUTRAL;
+                    map[counter].production_rate = 0;
+                }
+                ownership_watcher[map[counter].owner_id] += 1 ;
+                counter++;
+            }
             center_x += 3*HEXAGON_a ;
         }
         center_y += (Sint16) (sqrt(3)*HEXAGON_a/2) ;
     }
-    ShowHexagonBackground(sdlWindow , sdlRenderer , map , counter , HEXAGON_a ) ;
-    return  counter ;
+
+    for ( int i=1 ; i<4 ; i++)
+    {
+        if ( ownership_watcher[i] < 4 )
+        {
+            int temp_counter = 0 ;
+            while ( map[temp_counter].owner_id != 0 && temp_counter<counter )
+                temp_counter++ ;
+
+            map[temp_counter].owner_id = i ;
+            map[temp_counter].soldiers_number = 25 ;
+            if ( i== 1 )
+                map[temp_counter].type = USER ;
+            else
+                map[temp_counter].type = SYSTEM ;
+            map[temp_counter].production_rate = 2 ;
+            ownership_watcher[i] += 1 ;
+        }
+    }
+
+    return  map ;
 }
 
+void AddSoldiers ( land* map , int counter )
+{
+    for ( int i=0 ; i<counter ; i++)
+    {
+        if ( map[i].soldiers_number < 120 ) {
+            map[i].soldiers_number += map[i].production_rate;
+            if (map[i].soldiers_number >= 120)
+                map[i].soldiers_number = 120;
+        }
+    }
+}
+
+land GiveClickedCellInfo ( Sint16 x , Sint16 y , land* map , int counter , int Hexagon_a )
+{
+    for ( int i=0 ; i<counter ; i++ )
+    {
+        if ( (abs(x-map[i].x)< sqrt(3)*Hexagon_a/2) && (abs(y-map[i].y)< sqrt(3)*Hexagon_a/2) )
+            return map[i] ;
+    }
+
+    land temp = {.x=0 , .y=0 , .owner_id=-1 };
+    return  temp ;
+}

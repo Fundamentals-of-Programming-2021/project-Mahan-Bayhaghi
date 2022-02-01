@@ -70,6 +70,13 @@ build CMakeFiles/fop-project.dir/src/map_handling.c.obj: C_COMPILER__fop-project
   OBJECT_DIR = CMakeFiles\fop-project.dir
   OBJECT_FILE_DIR = CMakeFiles\fop-project.dir\src
 
+build CMakeFiles/fop-project.dir/src/temp_codes.c.obj: C_COMPILER__fop-project_Debug D$:/Sharif/Daneshgah$ stuff/BP$ c$ exercises/fop-project/src/temp_codes.c || cmake_object_order_depends_target_fop-project
+  DEP_FILE = CMakeFiles\fop-project.dir\src\temp_codes.c.obj.d
+  FLAGS = -g -std=gnu11
+  INCLUDES = -I"D:/Sharif/Daneshgah stuff/BP c exercises/fop-project/sdl2/sdl2-include" -I"D:/Sharif/Daneshgah stuff/BP c exercises/fop-project/sdl2/sdl2-gfx-include"
+  OBJECT_DIR = CMakeFiles\fop-project.dir
+  OBJECT_FILE_DIR = CMakeFiles\fop-project.dir\src
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target fop-project
@@ -78,7 +85,7 @@ build CMakeFiles/fop-project.dir/src/map_handling.c.obj: C_COMPILER__fop-project
 #############################################
 # Link the executable fop-project.exe
 
-build fop-project.exe: C_EXECUTABLE_LINKER__fop-project_Debug CMakeFiles/fop-project.dir/src/background_handling.c.obj CMakeFiles/fop-project.dir/src/main.c.obj CMakeFiles/fop-project.dir/src/map_handling.c.obj | ../sdl2/sdl2-lib/libSDL2.a ../sdl2/sdl2-lib/libSDL2main.a ../sdl2/sdl2-lib/libSDL2_mixer.a ../sdl2/sdl2-lib/libSDL2_ttf.a ../sdl2/sdl2-gfx-lib/libsdl-gfx.a
+build fop-project.exe: C_EXECUTABLE_LINKER__fop-project_Debug CMakeFiles/fop-project.dir/src/background_handling.c.obj CMakeFiles/fop-project.dir/src/main.c.obj CMakeFiles/fop-project.dir/src/map_handling.c.obj CMakeFiles/fop-project.dir/src/temp_codes.c.obj | ../sdl2/sdl2-lib/libSDL2.a ../sdl2/sdl2-lib/libSDL2main.a ../sdl2/sdl2-lib/libSDL2_mixer.a ../sdl2/sdl2-lib/libSDL2_ttf.a ../sdl2/sdl2-gfx-lib/libsdl-gfx.a
   FLAGS = -g
   LINK_LIBRARIES = ../sdl2/sdl2-lib/libSDL2.a  ../sdl2/sdl2-lib/libSDL2main.a  ../sdl2/sdl2-lib/libSDL2_mixer.a  ../sdl2/sdl2-lib/libSDL2_ttf.a  ../sdl2/sdl2-gfx-lib/libsdl-gfx.a  -lm  -ldinput8  -ldxguid  -ldxerr8  -luser32  -lgdi32  -lwinmm  -limm32  -lole32  -loleaut32  -lshell32  -lversion  -luuid  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\fop-project.dir

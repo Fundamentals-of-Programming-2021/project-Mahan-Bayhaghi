@@ -14,9 +14,9 @@
 #include <math.h>
 #include <time.h>
 
+
 enum OWNERSHIP { NEUTRAL , USER , SYSTEM };
 enum LANDTYPE { HEXAGON , RECTANGLE };
-
 
 typedef struct land {
     enum LANDTYPE type ;
@@ -28,8 +28,21 @@ typedef struct land {
     int production_rate ;
 } land ;
 
-void map_handling_test_func () ;
+void map_handling_test_func () ;    // A simple test function to see if header works
 
-int GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map , int HEXAGON_a) ;
 
-void ShowHexagonBackground ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , land* map , int counter , Sint16 a) ;
+// function to create randomized hexagon map
+// returns pointer to out game map ( pointer to an array of lands )
+land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map , int HEXAGON_a) ;
+
+
+// function to display hexagon map
+// returns number of cells in the game
+int ShowHexagonBackground ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , land* map , int counter , Sint16 a) ;
+
+// function to add soldiers to lands //
+void AddSoldiers ( land* map , int counter ) ;
+
+
+// function to specify which cell is being clicked on
+land GiveClickedCellInfo ( Sint16 x , Sint16 y , land* map , int counter , int Hexagon_a ) ;

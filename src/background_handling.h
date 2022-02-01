@@ -21,5 +21,3 @@ void test_func() ;
 SDL_Texture *getImageTexture(SDL_Renderer *sdlRenderer, char *image_path) ;
 
 int ShowMenu (SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int WIDTH , int HEIGHT ,SDL_Texture *img ) ;
-
-//void ShowHexagonBackground ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , land* map , int counter , int a) ;
