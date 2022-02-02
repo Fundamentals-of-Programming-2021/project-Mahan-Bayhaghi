@@ -26,7 +26,22 @@ typedef struct land {
     int owner_id ;
     int soldiers_number ;
     int production_rate ;
+    int counter ;
 } land ;
+
+typedef struct soldier {
+    Sint16 origin_x ;
+    Sint16 origin_y ;
+    Sint16 destination_x ;
+    Sint16 destination_y ;
+    int speed ;
+} soldier ;
+
+typedef struct SOLDIER_LINE {
+    soldier information ;
+    struct SOLDIER_LINE* next ;
+    struct SOLDIER_LINE* prev ;
+} SOLDIER_LINE ;
 
 void map_handling_test_func () ;    // A simple test function to see if header works
 
@@ -46,3 +61,10 @@ void AddSoldiers ( land* map , int counter ) ;
 
 // function to specify which cell is being clicked on
 land GiveClickedCellInfo ( Sint16 x , Sint16 y , land* map , int counter , int Hexagon_a ) ;
+
+
+// a function to creat a line of soldiers
+SOLDIER_LINE* CreatSoldierLine ( soldier soldier_info ) ;
+
+// a function to add a soldier to line
+void AddToSoldierLine ( SOLDIER_LINE* header , soldier soldier_info ) ;

@@ -74,7 +74,7 @@ land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRend
 
     int counter = 0 ;
 
-    for ( int i=0 ; i<12 ; i++)
+    for ( int i=0 ; i<16 ; i++)
     {
         if ( i%2==0 )
             center_x = start_x_pos ;
@@ -82,7 +82,7 @@ land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRend
             center_x = start_x_pos+ 1.5*HEXAGON_a ;
 
         Sint16 a = HEXAGON_a ;
-        for ( int j=0 ; j<7 ; j++) {
+        for ( int j=0 ; j<8 ; j++) {
             if ( rand()%7 == 0 || rand()%5 == 0 || rand()%8 == 0 )
             {
                 map[counter].x = center_x ;
@@ -106,6 +106,7 @@ land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRend
                     map[counter].production_rate = 0;
                 }
                 ownership_watcher[map[counter].owner_id] += 1 ;
+                map[counter].counter = counter ;
                 counter++;
             }
             center_x += 3*HEXAGON_a ;
@@ -135,6 +136,69 @@ land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRend
     return  map ;
 }
 
+// temp generate_hexagon_random_map
+//land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map , int HEXAGON_a)
+//{
+//    int* ownership_watcher = calloc(4 , sizeof(int)) ;
+//
+//    srand(time(0)) ;
+//    Sint16 start_x_pos = rand()%40 + 50 ;
+//    Sint16 start_y_pos = rand()%40 + 100 ;
+//
+//    Sint16 center_x ;
+//    Sint16 center_y = start_y_pos ;
+//
+//    int counter = 0 ;
+//
+//    for ( int i=0 ; i<16 ; i++)
+//    {
+//        if ( i%2==0 )
+//            center_x = start_x_pos ;
+//        else
+//            center_x = start_x_pos+ 1.5*HEXAGON_a ;
+//
+//        Sint16 a = HEXAGON_a ;
+//        for ( int j=0 ; j<8 ; j++) {
+//            if ( rand()%7 == 0 || rand()%5 == 0 || rand()%8 == 0 )
+//            {
+//                map[counter].x = center_x ;
+//                map[counter].y = center_y ;
+//                map[counter].production_rate = 0 ;
+//                map[counter].soldiers_number = 25 ;
+//                map[counter].owner_id = 0 ;
+//                map[counter].counter = counter ;
+//                counter++;
+//            }
+//            center_x += 3*HEXAGON_a ;
+//        }
+//        center_y += (Sint16) (sqrt(3)*HEXAGON_a/2) ;
+//    }
+//
+//    for ( int i=0 ; i<counter ; i++)
+//    {
+//        if ( rand()%6 == 0 )
+//        {
+//            int new_ownership = rand()%3 + 1 ;
+//            map[i].owner_id = new_ownership ;
+//            map[i].production_rate = 2 ;
+//
+//            int temp_counter = i ;
+//
+//            // up-left land //
+//
+//            // going forward enough 2 lands //
+//
+//            // going up enough 3 lands //
+//
+//            // goint down enough 3 lands //
+//
+//        }
+//    }
+//
+//    return  map ;
+//}
+
+
 void AddSoldiers ( land* map , int counter )
 {
     for ( int i=0 ; i<counter ; i++)
@@ -151,10 +215,34 @@ land GiveClickedCellInfo ( Sint16 x , Sint16 y , land* map , int counter , int H
 {
     for ( int i=0 ; i<counter ; i++ )
     {
-        if ( (abs(x-map[i].x)< sqrt(3)*Hexagon_a/2) && (abs(y-map[i].y)< sqrt(3)*Hexagon_a/2) )
-            return map[i] ;
+        Sint16 abs_delta_x = abs(x-map[i].x) ;
+        Sint16 abs_delta_y = abs(y-map[i].y) ;
+        if ( abs_delta_x < Hexagon_a  &&  abs_delta_y < Hexagon_a )
+        {
+            if ( abs_delta_x*abs_delta_x + abs_delta_y*abs_delta_y <= 3*Hexagon_a*Hexagon_a/4 )
+                return map[i] ;
+        }
     }
-
     land temp = {.x=0 , .y=0 , .owner_id=-1 };
     return  temp ;
+}
+
+SOLDIER_LINE* CreatSoldierLine ( soldier soldier_info )
+{
+    SOLDIER_LINE* header = malloc(sizeof(SOLDIER_LINE*)) ;
+    header->next = NULL ;
+    header->prev = NULL ;
+    header->information = soldier_info ;
+
+    return  header ;
+}
+
+void AddToSoldierLine ( SOLDIER_LINE* header , struct soldier soldier_info )
+{
+    while ( header->next != NULL )
+        header = header->next ;
+
+    header->information = soldier_info ;
+    header->next = malloc(sizeof(SOLDIER_LINE*)) ;
+    header->next->prev = header->prev ;
 }
