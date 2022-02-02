@@ -175,11 +175,23 @@ int main()
                         if ( Origin_counter != clicked_cell_info.counter ) {
                             printf("origin counter is : %d\n", Origin_counter);
                             printf("destination counter is : %d\n", clicked_cell_info.counter);
-                            soldier *line_of_soldiers = malloc(sizeof(soldier) * map_arr[Origin_counter].soldiers_number);
-                            map_arr[Origin_counter].soldiers_number = 0;
+
+                            if ( map_arr[clicked_cell_info.counter].owner_id == map_arr[Origin_counter].owner_id )
+                                map_arr[clicked_cell_info.counter].soldiers_number += map_arr[Origin_counter].soldiers_number ;
+                            else if ( map_arr[Origin_counter].soldiers_number > map_arr[clicked_cell_info.counter].soldiers_number )
+                            {
+                                map_arr[clicked_cell_info.counter].soldiers_number = map_arr[Origin_counter].soldiers_number - map_arr[clicked_cell_info.counter].soldiers_number ;
+                                map_arr[clicked_cell_info.counter].owner_id = map_arr[Origin_counter].owner_id ;
+                            }
+                            else if ( map_arr[Origin_counter].soldiers_number <= map_arr[clicked_cell_info.counter].soldiers_number )
+                            {
+                                map_arr[clicked_cell_info.counter].soldiers_number = map_arr[clicked_cell_info.counter].soldiers_number - map_arr[Origin_counter].soldiers_number ;
+                            }
+
+
+                            map_arr[Origin_counter].soldiers_number = 0 ;
                         }
                     }
-
 
                     SDL_Delay(200) ;
                     break;

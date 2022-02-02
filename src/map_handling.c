@@ -227,14 +227,12 @@ land GiveClickedCellInfo ( Sint16 x , Sint16 y , land* map , int counter , int H
     return  temp ;
 }
 
-SOLDIER_LINE* CreatSoldierLine ( soldier soldier_info )
+void CreatSoldierLine ( SOLDIER_LINE* header , soldier soldier_info )
 {
-    SOLDIER_LINE* header = malloc(sizeof(SOLDIER_LINE*)) ;
     header->next = NULL ;
     header->prev = NULL ;
     header->information = soldier_info ;
 
-    return  header ;
 }
 
 void AddToSoldierLine ( SOLDIER_LINE* header , struct soldier soldier_info )

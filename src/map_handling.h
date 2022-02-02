@@ -64,7 +64,7 @@ land GiveClickedCellInfo ( Sint16 x , Sint16 y , land* map , int counter , int H
 
 
 // a function to creat a line of soldiers
-SOLDIER_LINE* CreatSoldierLine ( soldier soldier_info ) ;
+void CreatSoldierLine ( SOLDIER_LINE* header , soldier soldier_info ) ;
 
 // a function to add a soldier to line
 void AddToSoldierLine ( SOLDIER_LINE* header , soldier soldier_info ) ;
