@@ -29,19 +29,7 @@ typedef struct land {
     int counter ;
 } land ;
 
-typedef struct soldier {
-    Sint16 origin_x ;
-    Sint16 origin_y ;
-    Sint16 destination_x ;
-    Sint16 destination_y ;
-    int speed ;
-} soldier ;
 
-typedef struct SOLDIER_LINE {
-    soldier information ;
-    struct SOLDIER_LINE* next ;
-    struct SOLDIER_LINE* prev ;
-} SOLDIER_LINE ;
 
 typedef struct OneSoldier {
     int num_of_all_soldiers ;
@@ -59,8 +47,8 @@ typedef struct OneSoldier {
     float horizontalSpeed ;
 } OneSoldier ;
 
-void map_handling_test_func () ;    // A simple test function to see if header works
-
+// A simple test function to see if header is included correctly
+void map_handling_test_func () ;
 
 // function to create randomized hexagon map
 // returns pointer to out game map ( pointer to an array of lands )
@@ -71,19 +59,13 @@ land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRend
 // returns number of cells in the game
 int ShowHexagonBackground ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , land* map , int counter , Sint16 a) ;
 
-// function to add soldiers to lands //
+// function to add soldiers to an array of lands
 void AddSoldiers ( land* map , int counter ) ;
 
 
-// function to specify which cell is being clicked on
+// function to specify which cell is being clicked or touched by user
+// returns land properties
 land GiveClickedCellInfo ( Sint16 x , Sint16 y , land* map , int counter , int Hexagon_a ) ;
-
-
-// a function to creat a line of soldiers
-void CreatSoldierLine ( SOLDIER_LINE* header , soldier soldier_info ) ;
-
-// a function to add a soldier to line
-void AddToSoldierLine ( SOLDIER_LINE* header , soldier soldier_info ) ;
 
 
 // a function to create a line of soldiers from map_arr[Origin_counter] to map_arr[Destination_cell_info.counter] in
@@ -91,7 +73,7 @@ void AddToSoldierLine ( SOLDIER_LINE* header , soldier soldier_info ) ;
 void CreateLineOfSoldiers ( OneSoldier** AllSoldiersArray , land* map_arr , int Origin_counter , land Destination_cell_info ) ;
 
 
-
-// a function to show soldiers on screen
+// a function to show soldiers if they haven't reached to their destination
+// or to destroy a soldier if reached destination
 void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersArray , int HEXAGON_A , land* map_arr ) ;
 

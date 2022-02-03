@@ -13,9 +13,7 @@ void map_handling_test_func()
     printf("this is a test from map_handling header\n") ;
 }
 
-
-
-void GENERATE_RANDOM_MAP ( int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map )
+__attribute__((unused)) void GENERATE_RANDOM_MAP ( int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map )
 {
     int random_x ;
     int random_y ;
@@ -35,7 +33,6 @@ void GENERATE_RANDOM_MAP ( int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map 
             map[counter].owner_id = i ;
             map[counter].type = HEXAGON ;
         }
-
     }
 }
 
@@ -229,23 +226,7 @@ land GiveClickedCellInfo ( Sint16 x , Sint16 y , land* map , int counter , int H
     return  temp ;
 }
 
-void CreatSoldierLine ( SOLDIER_LINE* header , soldier soldier_info )
-{
-    header->next = NULL ;
-    header->prev = NULL ;
-    header->information = soldier_info ;
 
-}
-
-void AddToSoldierLine ( SOLDIER_LINE* header , struct soldier soldier_info )
-{
-    while ( header->next != NULL )
-        header = header->next ;
-
-    header->information = soldier_info ;
-    header->next = malloc(sizeof(SOLDIER_LINE*)) ;
-    header->next->prev = header->prev ;
-}
 
 void CreateLineOfSoldiers ( OneSoldier** AllSoldiersArray , land* map_arr , int Origin_counter , land Destination_cell_info )
 {
