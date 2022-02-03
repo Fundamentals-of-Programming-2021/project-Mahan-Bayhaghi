@@ -174,72 +174,11 @@ int main()
                         Destination_y = clicked_cell_info.y ;
                         printf("origin (%d , %d) -- destination (%d , %d)\n" , Origin_x , Origin_y , Destination_x , Destination_y ) ;
                         // should send soldiers from origin to destination //
-
-                        if ( Origin_counter != clicked_cell_info.counter )
+                        if ( Origin_counter != clicked_cell_info.counter && map_arr[Origin_counter].soldiers_number != 0 )
                         {
-                            AllSoldiersArray[0] = malloc(sizeof(OneSoldier) *
-                                    map_arr[Origin_counter].soldiers_number) ;
-
-                            AllSoldiersArray[0][0].destination_x = clicked_cell_info.x ;
-                            AllSoldiersArray[0][0].destination_y = clicked_cell_info.y ;
-                            AllSoldiersArray[0][0].destination_counter = clicked_cell_info.counter ;
-                            AllSoldiersArray[0][0].owner_id = map_arr[Origin_counter].owner_id ;
-                            AllSoldiersArray[0][0].power = 1 ;
-
-                            // delta management //
-                            float delta_y = clicked_cell_info.y - map_arr[Origin_counter].y ;
-                            float delta_x = clicked_cell_info.x - map_arr[Origin_counter].x ;
-                            double theta = delta_y / delta_x ;
-                            AllSoldiersArray[0][0].verticalSpeed = 6.0 * sin(atan(theta) ) ;
-                            if ( delta_y > 0 )
-                                AllSoldiersArray[0][0].verticalSpeed = fabs(AllSoldiersArray[0][0].verticalSpeed) ;
-                            else if ( delta_y <0 )
-                                AllSoldiersArray[0][0].verticalSpeed = -1 * fabs(AllSoldiersArray[0][0].verticalSpeed) ;
-
-                            AllSoldiersArray[0][0].horizontalSpeed = 6.0 * cos(atan(theta) ) ;
-                            if ( delta_x > 0 )
-                                AllSoldiersArray[0][0].horizontalSpeed = fabs(AllSoldiersArray[0][0].horizontalSpeed) ;
-                            else if ( delta_x <0 )
-                                AllSoldiersArray[0][0].horizontalSpeed = -1 * fabs(AllSoldiersArray[0][0].horizontalSpeed) ;
-
-
-                            AllSoldiersArray[0][0].x = map_arr[Origin_counter].x + AllSoldiersArray[0][0].verticalSpeed ;
-                            AllSoldiersArray[0][0].y = map_arr[Origin_counter].y + AllSoldiersArray[0][0].horizontalSpeed ;
-
-                            for ( int temp_c = 1 ; temp_c<map_arr[Origin_counter].soldiers_number ; temp_c++ )
-                            {
-                                AllSoldiersArray[0][temp_c].x = AllSoldiersArray[0][temp_c-1].x - 2*AllSoldiersArray[0][0].horizontalSpeed ;
-                                AllSoldiersArray[0][temp_c].y = AllSoldiersArray[0][temp_c-1].y - 2*AllSoldiersArray[0][0].verticalSpeed ;
-                                AllSoldiersArray[0][temp_c].destination_x = AllSoldiersArray[0][0].destination_x ;
-                                AllSoldiersArray[0][temp_c].destination_y = AllSoldiersArray[0][0].destination_y ;
-                                AllSoldiersArray[0][temp_c].destination_counter = clicked_cell_info.counter ;
-                                AllSoldiersArray[0][temp_c].owner_id = map_arr[Origin_counter].owner_id ;
-                                AllSoldiersArray[0][temp_c].power = 1 ;
-                            }
-                            printf("\n-------------------\n%f %f\n" , AllSoldiersArray[0][0].x , AllSoldiersArray[0][0].y ) ;
-                            printf("atan{delta_y / delta_x} is : %lf\n" , theta ) ;
-                            printf("sin : %lf | cos : %lf\n" , sin(theta) , cos(theta) ) ;
-                            printf("%f %f\n" , AllSoldiersArray[0][0].verticalSpeed , AllSoldiersArray[0][0].horizontalSpeed) ;
+                            CreateLineOfSoldiers(AllSoldiersArray , map_arr , Origin_counter , clicked_cell_info) ;
                         }
 
-//                        if ( Origin_counter != clicked_cell_info.counter ) {
-//                            printf("origin counter is : %d\n", Origin_counter);
-//                            printf("destination counter is : %d\n", clicked_cell_info.counter);
-//
-//                            if ( map_arr[clicked_cell_info.counter].owner_id == map_arr[Origin_counter].owner_id )
-//                                map_arr[clicked_cell_info.counter].soldiers_number += map_arr[Origin_counter].soldiers_number ;
-//                            else if ( map_arr[Origin_counter].soldiers_number > map_arr[clicked_cell_info.counter].soldiers_number )
-//                            {
-//                                map_arr[clicked_cell_info.counter].soldiers_number = map_arr[Origin_counter].soldiers_number - map_arr[clicked_cell_info.counter].soldiers_number ;
-//                                map_arr[clicked_cell_info.counter].owner_id = map_arr[Origin_counter].owner_id ;
-//                            }
-//                            else if ( map_arr[Origin_counter].soldiers_number <= map_arr[clicked_cell_info.counter].soldiers_number )
-//                            {
-//                                map_arr[clicked_cell_info.counter].soldiers_number = map_arr[clicked_cell_info.counter].soldiers_number - map_arr[Origin_counter].soldiers_number ;
-//                            }
-//
-//                            map_arr[Origin_counter].soldiers_number = 0 ;
-//                        }
                     }
 
                     SDL_Delay(200) ;
@@ -250,27 +189,8 @@ int main()
             }
         }
 
-        for ( int temp_c=0 ; temp_c<25 ; temp_c++ ) {
-            if (AllSoldiersArray[0] != NULL && AllSoldiersArray[0][temp_c].x >= 0) {
-                AllSoldiersArray[0][temp_c].x += AllSoldiersArray[0][0].horizontalSpeed;
-                AllSoldiersArray[0][temp_c].y += AllSoldiersArray[0][0].verticalSpeed;
-                int r = AllSoldiersArray[0][temp_c].power * 2 ;
 
-                filledCircleColor(sdlRenderer, AllSoldiersArray[0][temp_c].x, AllSoldiersArray[0][temp_c].y, 2 * r, 0xffff00ff);
-
-                printf("[%d] --> x : %lf | des_x : %lf\n", temp_c ,
-                       AllSoldiersArray[0][temp_c].x, AllSoldiersArray[0][temp_c].destination_x);
-
-                if (fabs(AllSoldiersArray[0][temp_c].x / 40 - AllSoldiersArray[0][temp_c].destination_x / 40) < 0.2) {
-                    AllSoldiersArray[0][temp_c].x = -10;
-                    if (map_arr[AllSoldiersArray[0][temp_c].destination_counter].owner_id != AllSoldiersArray[0][temp_c].owner_id)
-                        map_arr[AllSoldiersArray[0][temp_c].destination_counter].soldiers_number -= AllSoldiersArray[0][temp_c].power;
-                    else
-                        map_arr[AllSoldiersArray[0][temp_c].destination_counter].soldiers_number += AllSoldiersArray[0][temp_c].power;
-
-                }
-            }
-        }
+        ShowLinesOfSoldiers(sdlRenderer , AllSoldiersArray , HEXAGON_A , map_arr) ;
 
 
         SDL_RenderPresent(sdlRenderer) ;
@@ -287,6 +207,7 @@ int main()
     SDL_free(img) ;
     SDL_free(back_to_menu) ;
     free(AllSoldiersArray) ;
+    free(map_arr) ;
 
     // Destroying window and program //
     SDL_DestroyTexture(img) ;

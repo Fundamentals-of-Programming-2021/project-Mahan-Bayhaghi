@@ -246,3 +246,127 @@ void AddToSoldierLine ( SOLDIER_LINE* header , struct soldier soldier_info )
     header->next = malloc(sizeof(SOLDIER_LINE*)) ;
     header->next->prev = header->prev ;
 }
+
+void CreateLineOfSoldiers ( OneSoldier** AllSoldiersArray , land* map_arr , int Origin_counter , land Destination_cell_info )
+{
+    int i=0 ;
+    while ( AllSoldiersArray[i] != NULL || AllSoldiersArray[i] != 0 )
+        i++ ;
+
+    // allocating a line of soldiers with proper length
+    AllSoldiersArray[i] = malloc( sizeof(OneSoldier) * map_arr[Origin_counter].soldiers_number ) ;
+    while ( AllSoldiersArray[i] == NULL )
+    {
+        printf("memory allocation for line of soldier incomplete !\nTrying again\n");
+        AllSoldiersArray[i] = malloc(sizeof(OneSoldier) * map_arr[Origin_counter].soldiers_number);
+    }
+
+    // Initializing first soldier as sample
+    AllSoldiersArray[i][0].origin_x = map_arr[Origin_counter].x ;
+    AllSoldiersArray[i][0].origin_y = map_arr[Origin_counter].y ;
+    AllSoldiersArray[i][0].destination_x = Destination_cell_info.x ;
+    AllSoldiersArray[i][0].destination_y = Destination_cell_info.y ;
+    AllSoldiersArray[i][0].destination_counter = Destination_cell_info.counter ;
+    AllSoldiersArray[i][0].owner_id = 1 ;
+    AllSoldiersArray[i][0].power = 1 ;
+    AllSoldiersArray[i][0].soldier_id = 1 ;
+    AllSoldiersArray[i][0].num_of_all_soldiers = map_arr[Origin_counter].soldiers_number ;
+
+    // angel management //
+    double delta_y =  Destination_cell_info.y - (map_arr[Origin_counter].y) ;
+    double delta_x = Destination_cell_info.x - (map_arr[Origin_counter].x) ;
+    double theta = delta_y / delta_x ;
+
+    AllSoldiersArray[i][0].verticalSpeed = 8.0 * sin(atan(theta) ) ;
+    if ( delta_y > 0 )
+        AllSoldiersArray[i][0].verticalSpeed = fabs(AllSoldiersArray[i][0].verticalSpeed) ;
+    else if ( delta_y <0 )
+        AllSoldiersArray[i][0].verticalSpeed = -1 * fabs(AllSoldiersArray[i][0].verticalSpeed) ;
+    AllSoldiersArray[i][0].horizontalSpeed = 8.0 * cos(atan(theta) ) ;
+    if ( delta_x > 0 )
+        AllSoldiersArray[i][0].horizontalSpeed = fabs(AllSoldiersArray[i][0].horizontalSpeed) ;
+    else if ( delta_x <0 )
+        AllSoldiersArray[i][0].horizontalSpeed = -1 * fabs(AllSoldiersArray[i][0].horizontalSpeed) ;
+
+    AllSoldiersArray[i][0].x = map_arr[Origin_counter].x ;
+    AllSoldiersArray[i][0].y = map_arr[Origin_counter].y ;
+
+    int c = map_arr[Origin_counter].soldiers_number ;
+    for ( int temp_c = 1 ; temp_c<c ; temp_c++ )
+    {
+        AllSoldiersArray[i][temp_c].x = AllSoldiersArray[i][temp_c-1].x - 1.5*AllSoldiersArray[i][0].horizontalSpeed ;
+        AllSoldiersArray[i][temp_c].y = AllSoldiersArray[i][temp_c-1].y - 1.5*AllSoldiersArray[i][0].verticalSpeed ;
+        AllSoldiersArray[i][temp_c].destination_x = AllSoldiersArray[i][0].destination_x ;
+        AllSoldiersArray[i][temp_c].destination_y = AllSoldiersArray[i][0].destination_y ;
+        AllSoldiersArray[i][temp_c].destination_counter = AllSoldiersArray[i][0].destination_counter ;
+        AllSoldiersArray[i][temp_c].owner_id = AllSoldiersArray[i][0].owner_id ;
+        AllSoldiersArray[i][temp_c].power = AllSoldiersArray[i][0].power ;
+        AllSoldiersArray[i][temp_c].soldier_id = temp_c+1 ;
+        AllSoldiersArray[i][temp_c].num_of_all_soldiers = AllSoldiersArray[i][0].num_of_all_soldiers ;
+        AllSoldiersArray[i][temp_c].origin_x = AllSoldiersArray[i][0].origin_x ;
+        AllSoldiersArray[i][temp_c].origin_y = AllSoldiersArray[i][0].origin_y ;
+    }
+
+    map_arr[Origin_counter].soldiers_number = 0  ;
+}
+
+
+void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersArray , int HEXAGON_A , land* map_arr )
+{
+    for ( int i=0 ; i<50 ; i++)
+    {
+        // to check only used line of soldiers
+        if ( AllSoldiersArray[i] != 0 || AllSoldiersArray[i] != NULL )
+        {
+            for ( int temp_c=0 ; temp_c<AllSoldiersArray[i][0].num_of_all_soldiers ; temp_c++ ) {
+                if ( AllSoldiersArray[i][temp_c].x >= -999) {
+                    AllSoldiersArray[i][temp_c].x += AllSoldiersArray[i][0].horizontalSpeed;
+                    AllSoldiersArray[i][temp_c].y += AllSoldiersArray[i][0].verticalSpeed;
+
+                    // drawing soldiers on screen if they are actually out of their land
+                    // or if they have any power (A.K.A power != 0 )
+                    int r = AllSoldiersArray[i][temp_c].power * 2 ;
+                    int should_draw = 1 ;
+                    if ( AllSoldiersArray[i][0].horizontalSpeed>0 && AllSoldiersArray[i][temp_c].x<AllSoldiersArray[i][temp_c].origin_x )
+                        should_draw = 0 ;
+                    else if ( AllSoldiersArray[i][0].horizontalSpeed<0 && AllSoldiersArray[i][temp_c].x>AllSoldiersArray[i][temp_c].origin_x)
+                        should_draw = 0 ;
+                    if ( AllSoldiersArray[i][0].verticalSpeed>0 && AllSoldiersArray[i][temp_c].y<AllSoldiersArray[i][temp_c].origin_y)
+                        should_draw = 0 ;
+                    else if ( AllSoldiersArray[i][0].verticalSpeed<0 && AllSoldiersArray[i][temp_c].y>AllSoldiersArray[i][temp_c].origin_y)
+                        should_draw = 0 ;
+                    if ( should_draw )
+                        filledCircleColor(sdlRenderer, AllSoldiersArray[i][temp_c].x,AllSoldiersArray[i][temp_c].y
+                                          , 2 * r, MAP_HANDLING_COLORS[AllSoldiersArray[i][0].owner_id]);
+
+                    // conflict checker
+                    if (fabs(AllSoldiersArray[i][temp_c].x-AllSoldiersArray[i][temp_c].destination_x)/HEXAGON_A <= 0.5 &&
+                        fabs(AllSoldiersArray[i][temp_c].y-AllSoldiersArray[i][temp_c].destination_y)/HEXAGON_A <= 0.5)
+                    {
+                        AllSoldiersArray[i][temp_c].x = -1001;
+                        // fighting between two rivals
+                        if (map_arr[AllSoldiersArray[i][temp_c].destination_counter].owner_id != AllSoldiersArray[i][temp_c].owner_id)
+                        {
+                            map_arr[AllSoldiersArray[i][temp_c].destination_counter].soldiers_number -= AllSoldiersArray[i][temp_c].power;
+                            if ( map_arr[AllSoldiersArray[i][temp_c].destination_counter].soldiers_number < 0 ) {
+                                map_arr[AllSoldiersArray[i][temp_c].destination_counter].owner_id = AllSoldiersArray[i][temp_c].owner_id;
+                                map_arr[AllSoldiersArray[i][temp_c].destination_counter].soldiers_number *= -1;
+                            }
+                        }
+
+                        // joining to friendly forces
+                        else
+                            map_arr[AllSoldiersArray[i][temp_c].destination_counter].soldiers_number += AllSoldiersArray[i][temp_c].power;
+
+                        // checking last soldier arrival to destination
+                        if ( AllSoldiersArray[i][temp_c].soldier_id == AllSoldiersArray[i][temp_c].num_of_all_soldiers )
+                        {
+                            AllSoldiersArray[i] = 0;
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -44,6 +44,10 @@ typedef struct SOLDIER_LINE {
 } SOLDIER_LINE ;
 
 typedef struct OneSoldier {
+    int num_of_all_soldiers ;
+    int soldier_id ;
+    float origin_x ;
+    float origin_y ;
     int owner_id ;
     int power ;
     float x ;
@@ -81,4 +85,13 @@ void CreatSoldierLine ( SOLDIER_LINE* header , soldier soldier_info ) ;
 // a function to add a soldier to line
 void AddToSoldierLine ( SOLDIER_LINE* header , soldier soldier_info ) ;
 
+
+// a function to create a line of soldiers from map_arr[Origin_counter] to map_arr[Destination_cell_info.counter] in
+// first free place of AllSoldierArray which is going to be rendered on screen
+void CreateLineOfSoldiers ( OneSoldier** AllSoldiersArray , land* map_arr , int Origin_counter , land Destination_cell_info ) ;
+
+
+
+// a function to show soldiers on screen
+void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersArray , int HEXAGON_A , land* map_arr ) ;
 
