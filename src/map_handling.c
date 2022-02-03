@@ -13,6 +13,8 @@ void map_handling_test_func()
     printf("this is a test from map_handling header\n") ;
 }
 
+
+
 void GENERATE_RANDOM_MAP ( int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map )
 {
     int random_x ;

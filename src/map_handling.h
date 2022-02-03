@@ -43,6 +43,18 @@ typedef struct SOLDIER_LINE {
     struct SOLDIER_LINE* prev ;
 } SOLDIER_LINE ;
 
+typedef struct OneSoldier {
+    int owner_id ;
+    int power ;
+    float x ;
+    float y ;
+    float destination_x ;
+    float destination_y ;
+    int destination_counter ;
+    float verticalSpeed ;
+    float horizontalSpeed ;
+} OneSoldier ;
+
 void map_handling_test_func () ;    // A simple test function to see if header works
 
 
@@ -68,3 +80,5 @@ void CreatSoldierLine ( SOLDIER_LINE* header , soldier soldier_info ) ;
 
 // a function to add a soldier to line
 void AddToSoldierLine ( SOLDIER_LINE* header , soldier soldier_info ) ;
+
+
