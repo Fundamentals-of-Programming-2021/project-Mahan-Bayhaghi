@@ -218,6 +218,8 @@ int main()
             return 0 ;
         }
 
+        SoldierConflictSolver(AllSoldiersArray) ;
+
         SDL_RenderPresent(sdlRenderer) ;
         SDL_Delay(1000/FPS) ;
         i++;

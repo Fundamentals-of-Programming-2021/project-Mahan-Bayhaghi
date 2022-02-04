@@ -316,7 +316,7 @@ void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersA
                     else if ( AllSoldiersArray[i][0].verticalSpeed<0 && AllSoldiersArray[i][temp_c].y>AllSoldiersArray[i][temp_c].origin_y)
                         should_draw = 0 ;
 
-                    if ( should_draw ) {
+                    if ( should_draw && r != 0 ) {
 //                        aacircleColor(sdlRenderer, AllSoldiersArray[i][temp_c].x, AllSoldiersArray[i][temp_c].y,
 //                                      2 * r ,0xffffffff);
                         filledCircleColor(sdlRenderer, AllSoldiersArray[i][temp_c].x, AllSoldiersArray[i][temp_c].y,
@@ -416,5 +416,31 @@ int CheckWinState ( int* CELLS_OWNED )
 
 void SoldierConflictSolver ( OneSoldier** AllSoldiersArray )
 {
-    // print
+    for ( int i=0 ; i<50 ; i++ )
+    {
+        if ( AllSoldiersArray[i] != NULL && AllSoldiersArray[i] != 0 )
+        {
+            for ( int j=i+1 ; j<50 ; j++)
+            {
+                if ( AllSoldiersArray[j] != NULL && AllSoldiersArray[j] != 0  )
+                {
+                    for ( int from_first = 0 ; from_first<AllSoldiersArray[i][0].num_of_all_soldiers ; from_first++)
+                    {
+                        for ( int from_second = 0 ; from_second<AllSoldiersArray[j][0].num_of_all_soldiers ; from_second++)
+                        {
+                            if ( fabs(AllSoldiersArray[i][from_first].x - AllSoldiersArray[j][from_second].x)<5 &&
+                                 fabs(AllSoldiersArray[i][from_first].y - AllSoldiersArray[j][from_second].y)<5 &&
+                                 AllSoldiersArray[i][from_first].power != 0 && AllSoldiersArray[j][from_second].power != 0
+                                 )
+                            {
+                                AllSoldiersArray[i][from_first].power = 0 ;
+                                AllSoldiersArray[j][from_second].power = 0 ;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
