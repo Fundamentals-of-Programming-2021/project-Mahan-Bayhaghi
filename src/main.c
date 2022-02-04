@@ -66,6 +66,16 @@ int main()
     map_arr = GENERATE_HEXAGON_RANDOM_MAP(sdlWindow , sdlRenderer , 3 , WIDTH , HEIGHT , map_arr , HEXAGON_A ) ;
     int NUM_OF_CELLS = ShowHexagonBackground(sdlWindow , sdlRenderer , map_arr , 84 , HEXAGON_A) ;
 
+    // an array to save number of cells owned by each owner_id
+    int* CELLS_OWNED = calloc( 4 , sizeof(int)) ;
+    // an array to save counter of each owner_id lands
+//    int** LANDS_OWNED_COUNTERS[4][NUM_OF_CELLS] ;
+    int** LANDS_OWNED_COUNTERS = malloc(sizeof(int*) * 4 ) ;
+    for ( int i=0 ; i<4 ; i++)
+        LANDS_OWNED_COUNTERS[i] = calloc( NUM_OF_CELLS , sizeof(int)) ;
+    // updating map info
+    UpdateMapInfo(map_arr , NUM_OF_CELLS , CELLS_OWNED , LANDS_OWNED_COUNTERS ) ;
+
 
     // getting background picture as texture
     SDL_Texture *img = getImageTexture(sdlRenderer , "../back.bmp") ;
@@ -93,6 +103,7 @@ int main()
 
     while ( !shallExit )
     {
+
         while ( shallShowMenu )
         {
             int condition = ShowMenu(sdlWindow , sdlRenderer , WIDTH , HEIGHT , img) ;
@@ -106,6 +117,9 @@ int main()
             }
         }
 
+        UpdateMapInfo(map_arr , NUM_OF_CELLS , CELLS_OWNED , LANDS_OWNED_COUNTERS ) ;
+
+
         i %= 200000 ;
 
         SDL_SetRenderDrawColor(sdlRenderer , 0xff , 0xff , 0xff ,0xff) ;
@@ -115,6 +129,12 @@ int main()
         SDL_RenderCopy(sdlRenderer, back_to_menu , NULL, &back_to_menu_texture_rect);
 
         ShowHexagonBackground(sdlWindow , sdlRenderer , map_arr , NUM_OF_CELLS , HEXAGON_A) ;
+
+        if ( i%100 == 20 )
+            SystemMakeMovement(2 , AllSoldiersArray , map_arr , CELLS_OWNED , LANDS_OWNED_COUNTERS , NUMBER_OF_PLAYERS) ;
+
+        if ( i%100 == 50 )
+            SystemMakeMovement(3 , AllSoldiersArray , map_arr , CELLS_OWNED , LANDS_OWNED_COUNTERS , NUMBER_OF_PLAYERS) ;
 
         if ( i%100 == 0 )
             AddSoldiers(map_arr , NUM_OF_CELLS ) ;
@@ -192,6 +212,11 @@ int main()
 
         ShowLinesOfSoldiers(sdlRenderer , AllSoldiersArray , HEXAGON_A , map_arr) ;
 
+        if ( CheckWinState(CELLS_OWNED) )
+        {
+            printf("game over\n") ;
+            return 0 ;
+        }
 
         SDL_RenderPresent(sdlRenderer) ;
         SDL_Delay(1000/FPS) ;

@@ -18,6 +18,7 @@
 enum OWNERSHIP { NEUTRAL , USER , SYSTEM };
 enum LANDTYPE { HEXAGON , RECTANGLE };
 
+// struct containing every land information
 typedef struct land {
     enum LANDTYPE type ;
     enum OWNERSHIP owner ;
@@ -29,8 +30,7 @@ typedef struct land {
     int counter ;
 } land ;
 
-
-
+// struct containing every soldier information
 typedef struct OneSoldier {
     int num_of_all_soldiers ;
     int soldier_id ;
@@ -59,6 +59,7 @@ land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRend
 // returns number of cells in the game
 int ShowHexagonBackground ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , land* map , int counter , Sint16 a) ;
 
+
 // function to add soldiers to an array of lands
 void AddSoldiers ( land* map , int counter ) ;
 
@@ -76,4 +77,29 @@ void CreateLineOfSoldiers ( OneSoldier** AllSoldiersArray , land* map_arr , int 
 // a function to show soldiers if they haven't reached to their destination
 // or to destroy a soldier if reached destination
 void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersArray , int HEXAGON_A , land* map_arr ) ;
+
+
+// a function to set conflicting soldiers power to zero
+void SoldierConflictSolver ( OneSoldier** AllSoldiersArray );
+
+
+// a function to update map info for managing attacks and winning condition
+void UpdateMapInfo(land *map_arr , int NUM_OF_CELLS , int* CELLS_OWNED , int** LANDS_OWNED_COUNTERS) ;
+
+
+// a function to update system and also user score
+void UpdateScore ( ) ;
+
+
+// a function to make System players make a proper attack to others
+// they may or may not move according to situation
+// this function uses CreateLineOfSoldiers just like what user does
+void SystemMakeMovement ( int owner_id , OneSoldier** AllSoldiersArray , land* map_arr
+        , int* CELLS_OWNED , int** LANDS_OWNED_COUNTERS , int NUM_OF_PLAYERS ) ;
+
+
+// a function to check if any player has won
+// returns 0 if not else returns 1
+int CheckWinState ( int* CELLS_OWNED ) ;
+
 

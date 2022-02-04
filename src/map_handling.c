@@ -227,7 +227,6 @@ land GiveClickedCellInfo ( Sint16 x , Sint16 y , land* map , int counter , int H
 }
 
 
-
 void CreateLineOfSoldiers ( OneSoldier** AllSoldiersArray , land* map_arr , int Origin_counter , land Destination_cell_info )
 {
     int i=0 ;
@@ -248,7 +247,7 @@ void CreateLineOfSoldiers ( OneSoldier** AllSoldiersArray , land* map_arr , int 
     AllSoldiersArray[i][0].destination_x = Destination_cell_info.x ;
     AllSoldiersArray[i][0].destination_y = Destination_cell_info.y ;
     AllSoldiersArray[i][0].destination_counter = Destination_cell_info.counter ;
-    AllSoldiersArray[i][0].owner_id = 1 ;
+    AllSoldiersArray[i][0].owner_id = map_arr[Origin_counter].owner_id ;
     AllSoldiersArray[i][0].power = 1 ;
     AllSoldiersArray[i][0].soldier_id = 1 ;
     AllSoldiersArray[i][0].num_of_all_soldiers = map_arr[Origin_counter].soldiers_number ;
@@ -300,7 +299,7 @@ void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersA
         if ( AllSoldiersArray[i] != 0 || AllSoldiersArray[i] != NULL )
         {
             for ( int temp_c=0 ; temp_c<AllSoldiersArray[i][0].num_of_all_soldiers ; temp_c++ ) {
-                if ( AllSoldiersArray[i][temp_c].x >= -999) {
+                if ( AllSoldiersArray[i][temp_c].x >= -9999) {
                     AllSoldiersArray[i][temp_c].x += AllSoldiersArray[i][0].horizontalSpeed;
                     AllSoldiersArray[i][temp_c].y += AllSoldiersArray[i][0].verticalSpeed;
 
@@ -316,15 +315,21 @@ void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersA
                         should_draw = 0 ;
                     else if ( AllSoldiersArray[i][0].verticalSpeed<0 && AllSoldiersArray[i][temp_c].y>AllSoldiersArray[i][temp_c].origin_y)
                         should_draw = 0 ;
-                    if ( should_draw )
-                        filledCircleColor(sdlRenderer, AllSoldiersArray[i][temp_c].x,AllSoldiersArray[i][temp_c].y
-                                          , 2 * r, MAP_HANDLING_COLORS[AllSoldiersArray[i][0].owner_id]);
+
+                    if ( should_draw ) {
+//                        aacircleColor(sdlRenderer, AllSoldiersArray[i][temp_c].x, AllSoldiersArray[i][temp_c].y,
+//                                      2 * r ,0xffffffff);
+                        filledCircleColor(sdlRenderer, AllSoldiersArray[i][temp_c].x, AllSoldiersArray[i][temp_c].y,
+                                          2 * r, MAP_HANDLING_COLORS[AllSoldiersArray[i][0].owner_id]);
+                        filledCircleColor(sdlRenderer, AllSoldiersArray[i][temp_c].x, AllSoldiersArray[i][temp_c].y,
+                                          2 * r, 0x44000000);
+                    }
 
                     // conflict checker
                     if (fabs(AllSoldiersArray[i][temp_c].x-AllSoldiersArray[i][temp_c].destination_x)/HEXAGON_A <= 0.5 &&
                         fabs(AllSoldiersArray[i][temp_c].y-AllSoldiersArray[i][temp_c].destination_y)/HEXAGON_A <= 0.5)
                     {
-                        AllSoldiersArray[i][temp_c].x = -1001;
+                        AllSoldiersArray[i][temp_c].x = -10001;
                         // fighting between two rivals
                         if (map_arr[AllSoldiersArray[i][temp_c].destination_counter].owner_id != AllSoldiersArray[i][temp_c].owner_id)
                         {
@@ -350,4 +355,66 @@ void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersA
             }
         }
     }
+}
+
+
+void UpdateMapInfo(land *map_arr , int NUM_OF_CELLS , int* CELLS_OWNED , int** LANDS_OWNED_COUNTERS)
+{
+
+    for ( int i=0 ; i<4 ; i++)
+        CELLS_OWNED[i] = 0 ;
+
+    for ( int i=0 ; i<NUM_OF_CELLS ; i++)
+    {
+        CELLS_OWNED[map_arr[i].owner_id] += 1 ;
+        LANDS_OWNED_COUNTERS[ map_arr[i].owner_id ][ CELLS_OWNED[map_arr[i].owner_id]-1 ] = map_arr[i].counter ;
+    }
+}
+
+
+void SystemMakeMovement ( int owner_id , OneSoldier** AllSoldiersArray , land* map_arr
+        , int* CELLS_OWNED , int** LANDS_OWNED_COUNTERS , int NUM_OF_PLAYERS )
+{
+    srand(time(0)) ;
+
+    if ( CELLS_OWNED[owner_id] == 0 )   // already lost
+        return;
+
+    else if ( rand() % 2 == 0 )
+    {
+        int Origin_counter =LANDS_OWNED_COUNTERS[owner_id][rand()%CELLS_OWNED[owner_id]] ;
+        int Opponent_id = rand()%NUM_OF_PLAYERS ;
+        while ( Opponent_id == owner_id )
+            Opponent_id = rand()%NUM_OF_PLAYERS ;
+
+        if ( CELLS_OWNED[Opponent_id] == 0 )
+            return;
+
+        int Opponent_counter = LANDS_OWNED_COUNTERS[Opponent_id][rand()%CELLS_OWNED[owner_id]] ;
+        land destination = map_arr[Opponent_counter] ;
+
+        if ( map_arr[Origin_counter].soldiers_number > 5 + map_arr[Opponent_counter].soldiers_number )
+            CreateLineOfSoldiers(AllSoldiersArray , map_arr , Origin_counter , destination) ;
+        else
+            return;
+    }
+}
+
+
+int CheckWinState ( int* CELLS_OWNED )
+{
+    int number_of_zeroes = 0 ;
+    for ( int i=1 ; i<4 ; i++)
+    {
+        if ( CELLS_OWNED[i] == 0 )
+            number_of_zeroes += 1 ;
+    }
+
+    return (number_of_zeroes == 2 ) ;
+}
+
+
+void SoldierConflictSolver ( OneSoldier** AllSoldiersArray )
+{
+    // print
 }
