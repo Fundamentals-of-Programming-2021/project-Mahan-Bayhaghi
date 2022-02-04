@@ -23,7 +23,7 @@ const int FPS = 60 ;
 const int PRO_RATE = 1 ;
 const int INIT_SOLDIER = 25 ;
 const int NUMBER_OF_PLAYERS = 3 ;
-const int HEXAGON_A = 30 ;
+const int HEXAGON_A = 28 ;
 const int NUM_OF_ROWS = 8 ;
 const int NUM_OF_COLS = 16 ;
 
@@ -98,11 +98,16 @@ int main()
     Sint16 Destination_x = 0 ;
     Sint16 Destination_y = 0 ;
 
+    int Potion_condition = 0 ;
+    int temp_po_counter = 0 ;
+
 
     OneSoldier** AllSoldiersArray = calloc(2*NUM_OF_CELLS , sizeof(OneSoldier*) ) ;
 
     while ( !shallExit )
     {
+
+        SoldierConflictSolver(AllSoldiersArray) ;
 
         while ( shallShowMenu )
         {
@@ -139,8 +144,32 @@ int main()
         if ( i%100 == 0 )
             AddSoldiers(map_arr , NUM_OF_CELLS ) ;
 
+
         SDL_Event sdlEvent;
         land clicked_cell_info ;
+        Potion live_time_potion ;
+
+        if ( i%200 == 35 && Potion_condition==0 ) {
+            live_time_potion = CreatePotion(WIDTH, HEIGHT);
+            printf("potion_x : %d | potion_y : %d\npotion_id : %d\n----------------\n", live_time_potion.x,
+                   live_time_potion.y, live_time_potion.potion_id);
+            if ( live_time_potion.x != -1 ) {
+                filledCircleColor(sdlRenderer, live_time_potion.x, live_time_potion.y, 20 , 0xfff00fff);
+                Potion_condition = 1 ;
+                temp_po_counter = 0 ;
+            }
+        }
+
+        temp_po_counter += 1 ;
+        if ( temp_po_counter<=200 && Potion_condition==1 )
+        {
+            filledCircleColor(sdlRenderer, live_time_potion.x, live_time_potion.y, 20 , 0xfff00fff);
+        }
+        else if ( temp_po_counter == 201 )
+            Potion_condition = 0 ;
+
+
+
 
         if ( click_status == 1 )    // aim helper //
         {
@@ -212,13 +241,13 @@ int main()
 
         ShowLinesOfSoldiers(sdlRenderer , AllSoldiersArray , HEXAGON_A , map_arr) ;
 
+
         if ( CheckWinState(CELLS_OWNED) )
         {
             printf("game over\n") ;
             return 0 ;
         }
 
-        SoldierConflictSolver(AllSoldiersArray) ;
 
         SDL_RenderPresent(sdlRenderer) ;
         SDL_Delay(1000/FPS) ;

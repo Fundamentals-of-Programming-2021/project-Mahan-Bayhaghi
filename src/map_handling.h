@@ -47,6 +47,17 @@ typedef struct OneSoldier {
     float horizontalSpeed ;
 } OneSoldier ;
 
+
+enum PotionType { USER_SPEED_2X , SYSTEM_SPEED_0X , SYSTEM_SPEED_HALF , USER_POWER_2X };
+
+// struct containing potion information
+typedef struct Potion {
+    int x ;
+    int y ;
+    int potion_id ;
+    enum PotionType type ;
+} Potion ;
+
 // A simple test function to see if header is included correctly
 void map_handling_test_func () ;
 
@@ -103,3 +114,6 @@ void SystemMakeMovement ( int owner_id , OneSoldier** AllSoldiersArray , land* m
 int CheckWinState ( int* CELLS_OWNED ) ;
 
 
+// a function that may or may not create random accessible potion
+// returns a potion structure
+Potion CreatePotion ( int WIDTH , int HEIGHT ) ;

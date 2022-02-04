@@ -82,7 +82,7 @@ land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRend
 
         Sint16 a = HEXAGON_a ;
         for ( int j=0 ; j<8 ; j++) {
-            if ( rand()%7 == 0 || rand()%5 == 0 || rand()%8 == 0 )
+            if ( rand()%7 == 0 || rand()%5 == 0 || rand()%8 == 0 || rand()%3 == 0 )
             {
                 map[counter].x = center_x ;
                 map[counter].y = center_y ;
@@ -317,12 +317,12 @@ void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersA
                         should_draw = 0 ;
 
                     if ( should_draw && r != 0 ) {
-//                        aacircleColor(sdlRenderer, AllSoldiersArray[i][temp_c].x, AllSoldiersArray[i][temp_c].y,
-//                                      2 * r ,0xffffffff);
+                        aacircleColor(sdlRenderer, AllSoldiersArray[i][temp_c].x, AllSoldiersArray[i][temp_c].y,
+                                      2 * r ,0xffffffff);
                         filledCircleColor(sdlRenderer, AllSoldiersArray[i][temp_c].x, AllSoldiersArray[i][temp_c].y,
                                           2 * r, MAP_HANDLING_COLORS[AllSoldiersArray[i][0].owner_id]);
                         filledCircleColor(sdlRenderer, AllSoldiersArray[i][temp_c].x, AllSoldiersArray[i][temp_c].y,
-                                          2 * r, 0x44000000);
+                                          2 * r, 0x0fffffff);
                     }
 
                     // conflict checker
@@ -422,7 +422,8 @@ void SoldierConflictSolver ( OneSoldier** AllSoldiersArray )
         {
             for ( int j=i+1 ; j<50 ; j++)
             {
-                if ( AllSoldiersArray[j] != NULL && AllSoldiersArray[j] != 0  )
+                if ( AllSoldiersArray[j] != NULL && AllSoldiersArray[j] != 0  &&
+                     AllSoldiersArray[i][0].owner_id != AllSoldiersArray[j][0].owner_id )
                 {
                     for ( int from_first = 0 ; from_first<AllSoldiersArray[i][0].num_of_all_soldiers ; from_first++)
                     {
@@ -432,6 +433,7 @@ void SoldierConflictSolver ( OneSoldier** AllSoldiersArray )
                                  fabs(AllSoldiersArray[i][from_first].y - AllSoldiersArray[j][from_second].y)<5 &&
                                  AllSoldiersArray[i][from_first].power != 0 && AllSoldiersArray[j][from_second].power != 0
                                  )
+
                             {
                                 AllSoldiersArray[i][from_first].power = 0 ;
                                 AllSoldiersArray[j][from_second].power = 0 ;
@@ -443,4 +445,27 @@ void SoldierConflictSolver ( OneSoldier** AllSoldiersArray )
             }
         }
     }
+}
+
+
+Potion CreatePotion ( int WIDTH , int HEIGHT )
+{
+    srand(time(0)) ;
+
+    Potion returning_potion ;
+    if ( rand() % 2 == 0 )
+    {
+        returning_potion.x = rand()%WIDTH + 50 ;
+        if ( returning_potion.x < 100 )
+            returning_potion.x += 100 ;
+        returning_potion.y = rand()%HEIGHT + 80 ;
+        if ( returning_potion.y < 80 )
+            returning_potion.y += 80 ;
+
+        returning_potion.potion_id = rand()%4 ;
+        return returning_potion ;
+    }
+
+    returning_potion.x = -1 ;
+    return returning_potion ;
 }
