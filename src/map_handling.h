@@ -18,6 +18,7 @@
 enum OWNERSHIP { NEUTRAL , USER , SYSTEM };
 enum LANDTYPE { HEXAGON , RECTANGLE };
 
+
 // struct containing every land information
 typedef struct land {
     enum LANDTYPE type ;
@@ -50,13 +51,20 @@ typedef struct OneSoldier {
 
 enum PotionType { USER_SPEED_2X , SYSTEM_SPEED_0X , SYSTEM_SPEED_HALF , USER_POWER_2X };
 
-// struct containing potion information
+// struct containing potion data
 typedef struct Potion {
     int x ;
     int y ;
     int potion_id ;
     enum PotionType type ;
 } Potion ;
+
+// struct containing a potion's effect data
+typedef struct OnePotionEffect {
+    int time_to_exist ;
+    int potion_id ;
+    int owner_id ;
+} OnePotionEffect  ;
 
 // A simple test function to see if header is included correctly
 void map_handling_test_func () ;
@@ -72,7 +80,7 @@ int ShowHexagonBackground ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , 
 
 
 // function to add soldiers to an array of lands
-void AddSoldiers ( land* map , int counter ) ;
+void AddSoldiers ( land* map , int counter , int* PRODUCTION_RATE_ARRAY ) ;
 
 
 // function to specify which cell is being clicked or touched by user
@@ -82,12 +90,13 @@ land GiveClickedCellInfo ( Sint16 x , Sint16 y , land* map , int counter , int H
 
 // a function to create a line of soldiers from map_arr[Origin_counter] to map_arr[Destination_cell_info.counter] in
 // first free place of AllSoldierArray which is going to be rendered on screen
-void CreateLineOfSoldiers ( OneSoldier** AllSoldiersArray , land* map_arr , int Origin_counter , land Destination_cell_info ) ;
-
+void CreateLineOfSoldiers ( OneSoldier** AllSoldiersArray , land* map_arr , int Origin_counter , land Destination_cell_info
+        , float* SOLDIERS_POWER_ARRAY ) ;
 
 // a function to show soldiers if they haven't reached to their destination
 // or to destroy a soldier if reached destination
-void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersArray , int HEXAGON_A , land* map_arr ) ;
+void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersArray , int HEXAGON_A , land* map_arr
+                            , float* SPEED_ARRAY ) ;
 
 
 // a function to set conflicting soldiers power to zero
@@ -106,7 +115,7 @@ void UpdateScore ( ) ;
 // they may or may not move according to situation
 // this function uses CreateLineOfSoldiers just like what user does
 void SystemMakeMovement ( int owner_id , OneSoldier** AllSoldiersArray , land* map_arr
-        , int* CELLS_OWNED , int** LANDS_OWNED_COUNTERS , int NUM_OF_PLAYERS ) ;
+        , int* CELLS_OWNED , int** LANDS_OWNED_COUNTERS , int NUM_OF_PLAYERS , float* SOLDIERS_POWER_ARRAY ) ;
 
 
 // a function to check if any player has won
@@ -117,3 +126,26 @@ int CheckWinState ( int* CELLS_OWNED ) ;
 // a function that may or may not create random accessible potion
 // returns a potion structure
 Potion CreatePotion ( int WIDTH , int HEIGHT ) ;
+
+
+// a function to check if a potion is touched by a soldier or not
+// if yes : activate potion effect on speed array or power array and returns activation information
+// else : returns
+void CheckForSoldierPotionConflict ( OneSoldier** AllSoldiersArray , Potion* live_time_potion
+                                     , OnePotionEffect* AllPotionsEffect ) ;
+
+// a function to create a potion effect in global array AllPotionsArray
+// returns 1 if potion effect is created
+// else returns 0
+int CreatePotionEffect ( Potion potion_info , OnePotionEffect* AllPotionsArray , int Destination_owner ) ;
+
+
+// a function to update potion effect data
+void UpdatePotionEffectArray ( OnePotionEffect* AllPotionsEffect ) ;
+
+
+
+// a function to apply potion effect
+void ApplyPotionEffect ( OnePotionEffect* AllPotionsEffect , float* SPEED_ARRAY,
+                         float* SOLDIERS_POWER_ARRAY , int* PRODUCTION_RATE_ARRAY) ;
+

@@ -27,15 +27,19 @@ const int HEXAGON_A = 28 ;
 const int NUM_OF_ROWS = 8 ;
 const int NUM_OF_COLS = 16 ;
 
+float SPEED_ARRAY [4] =             { 1 , 1 , 1 , 1 };
+int PRODUCTION_RATE_ARRAY [4] =     { 0 , 2 , 2 , 2};
+float SOLDIERS_POWER_ARRAY [4] =    { 2 , 1 , 1, 1 };
+
+
 Uint32 COLORS[4] = { 0xffa39d8c , 0xff3434eb , 0xff6ebe34 , 0xffb00500 };
                         // grey          // blue          // green        // red
 
 int main()
 {
-
     // Initializing SDL for video and timer and audio
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO) < 0) {
-        printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+        fprintf(stderr , "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() ) ;
         return 0;
     }
 
@@ -44,7 +48,7 @@ int main()
         const char* driver_name = SDL_GetAudioDriver(i);
         printf("audio driver name : %s\n" , driver_name) ;
         if (SDL_AudioInit(driver_name)) {
-            printf("Audio driver failed to initialize: %s\n", driver_name);
+            fprintf(stderr , "Audio driver failed to initialize: %s\n" , driver_name) ;
             continue;
         }
     }
@@ -52,6 +56,7 @@ int main()
     // testing headers
     test_func() ;
     map_handling_test_func() ;
+
 
     // creating sdlWindow and sdlRenderer
     SDL_Window *sdlWindow = SDL_CreateWindow("State.io" , SDL_WINDOWPOS_CENTERED , SDL_WINDOWPOS_CENTERED , WIDTH , HEIGHT , SDL_WINDOW_OPENGL) ;
@@ -69,7 +74,6 @@ int main()
     // an array to save number of cells owned by each owner_id
     int* CELLS_OWNED = calloc( 4 , sizeof(int)) ;
     // an array to save counter of each owner_id lands
-//    int** LANDS_OWNED_COUNTERS[4][NUM_OF_CELLS] ;
     int** LANDS_OWNED_COUNTERS = malloc(sizeof(int*) * 4 ) ;
     for ( int i=0 ; i<4 ; i++)
         LANDS_OWNED_COUNTERS[i] = calloc( NUM_OF_CELLS , sizeof(int)) ;
@@ -86,6 +90,9 @@ int main()
     SDL_Texture *back_to_menu = getImageTexture(sdlRenderer , "../go_back_to_menu.bmp") ;
     SDL_Rect back_to_menu_texture_rect = {.x=0, .y=0, .w=40, .h=40};
 
+    SDL_Texture *potion = getImageTexture(sdlRenderer , "../start.bmp") ;
+    SDL_Rect potion_rect = {.x=0, .y=0, .w=50 , .h=50};
+
     int i=1 ;
     SDL_bool shallExit = SDL_FALSE ;
     SDL_bool shallShowMenu = SDL_TRUE ;
@@ -99,15 +106,24 @@ int main()
     Sint16 Destination_y = 0 ;
 
     int Potion_condition = 0 ;
-    int temp_po_counter = 0 ;
+    int Potion_time_to_exist = 0 ;
+
+    Potion live_time_potion = {.potion_id=-1} ;
 
 
+    // a very important array to save moving soldiers data
     OneSoldier** AllSoldiersArray = calloc(2*NUM_OF_CELLS , sizeof(OneSoldier*) ) ;
+
+    // a very important array to save activated Potions data
+    OnePotionEffect* AllPotionsArray = calloc(4 , sizeof(OnePotionEffect)) ;
+    for ( int temp=0 ; temp<4 ; temp++)
+    {
+        AllPotionsArray[temp].potion_id = -1 ;
+    }
 
     while ( !shallExit )
     {
-
-        SoldierConflictSolver(AllSoldiersArray) ;
+        i %= 200000 ;
 
         while ( shallShowMenu )
         {
@@ -125,49 +141,35 @@ int main()
         UpdateMapInfo(map_arr , NUM_OF_CELLS , CELLS_OWNED , LANDS_OWNED_COUNTERS ) ;
 
 
-        i %= 200000 ;
-
         SDL_SetRenderDrawColor(sdlRenderer , 0xff , 0xff , 0xff ,0xff) ;
         SDL_RenderClear(sdlRenderer) ;
-
         SDL_RenderCopy(sdlRenderer, img , NULL, &texture_rect);
         SDL_RenderCopy(sdlRenderer, back_to_menu , NULL, &back_to_menu_texture_rect);
 
         ShowHexagonBackground(sdlWindow , sdlRenderer , map_arr , NUM_OF_CELLS , HEXAGON_A) ;
 
-        if ( i%100 == 20 )
-            SystemMakeMovement(2 , AllSoldiersArray , map_arr , CELLS_OWNED , LANDS_OWNED_COUNTERS , NUMBER_OF_PLAYERS) ;
+        if ( i%50 == 20 )
+            SystemMakeMovement(2 , AllSoldiersArray , map_arr , CELLS_OWNED , LANDS_OWNED_COUNTERS , NUMBER_OF_PLAYERS , SOLDIERS_POWER_ARRAY) ;
 
-        if ( i%100 == 50 )
-            SystemMakeMovement(3 , AllSoldiersArray , map_arr , CELLS_OWNED , LANDS_OWNED_COUNTERS , NUMBER_OF_PLAYERS) ;
+        if ( i%50 == 49 )
+            SystemMakeMovement(3 , AllSoldiersArray , map_arr , CELLS_OWNED , LANDS_OWNED_COUNTERS , NUMBER_OF_PLAYERS , SOLDIERS_POWER_ARRAY) ;
 
         if ( i%100 == 0 )
-            AddSoldiers(map_arr , NUM_OF_CELLS ) ;
+            AddSoldiers(map_arr , NUM_OF_CELLS , PRODUCTION_RATE_ARRAY ) ;
 
 
         SDL_Event sdlEvent;
         land clicked_cell_info ;
-        Potion live_time_potion ;
 
-        if ( i%200 == 35 && Potion_condition==0 ) {
-            live_time_potion = CreatePotion(WIDTH, HEIGHT);
-            printf("potion_x : %d | potion_y : %d\npotion_id : %d\n----------------\n", live_time_potion.x,
-                   live_time_potion.y, live_time_potion.potion_id);
-            if ( live_time_potion.x != -1 ) {
-                filledCircleColor(sdlRenderer, live_time_potion.x, live_time_potion.y, 20 , 0xfff00fff);
-                Potion_condition = 1 ;
-                temp_po_counter = 0 ;
-            }
-        }
+        if ( i%400 == 50 )
+            live_time_potion = CreatePotion(WIDTH , HEIGHT) ;
 
-        temp_po_counter += 1 ;
-        if ( temp_po_counter<=200 && Potion_condition==1 )
-        {
-            filledCircleColor(sdlRenderer, live_time_potion.x, live_time_potion.y, 20 , 0xfff00fff);
-        }
-        else if ( temp_po_counter == 201 )
-            Potion_condition = 0 ;
+        CheckForSoldierPotionConflict(AllSoldiersArray, &live_time_potion, AllPotionsArray);
+        UpdatePotionEffectArray(AllPotionsArray) ;
+        ApplyPotionEffect(AllPotionsArray , SPEED_ARRAY , SOLDIERS_POWER_ARRAY , PRODUCTION_RATE_ARRAY) ;
 
+        if ( live_time_potion.potion_id != -1 )
+            filledCircleColor(sdlRenderer, live_time_potion.x, live_time_potion.y, 10, 0xff000000);
 
 
 
@@ -181,31 +183,25 @@ int main()
             }
             else if ( sdlEvent.motion.x != 0 && sdlEvent.motion.y != 0)
                 SDL_RenderDrawLine(sdlRenderer, Origin_x, Origin_y, sdlEvent.motion.x , sdlEvent.motion.y);
-
         }
 
         while (SDL_PollEvent(&sdlEvent)) {
-            Sint16 x = sdlEvent.motion.x ;
-            Sint16 y = sdlEvent.motion.y ;
-
+            Sint32 x = sdlEvent.motion.x ;
+            Sint32 y = sdlEvent.motion.y ;
             switch (sdlEvent.type)
             {
-
                 case SDL_QUIT:
                     printf("User quited the game successfully !\n") ;
                     shallExit = SDL_TRUE;
                     break;
-
                 case SDL_MOUSEMOTION:
                     break;
-
                 case SDL_MOUSEBUTTONDOWN:
                     printf("mouse is being pushed at (%d , %d)\n" , x , y) ;
                     if ( x<40 && y<40 )
                         shallShowMenu = SDL_TRUE ;
 
                     clicked_cell_info = GiveClickedCellInfo(x , y , map_arr , NUM_OF_CELLS , 35) ;
-
                     if ( clicked_cell_info.owner_id == 1 && click_status == 0 )
                     {
                         click_status += 1 ;
@@ -214,7 +210,6 @@ int main()
                         Origin_y = clicked_cell_info.y ;
                         Origin_counter = clicked_cell_info.counter ;
                     }
-
                     else if ( clicked_cell_info.owner_id != -1 && click_status == 1 )
                     {
                         click_status += 1 ;
@@ -224,13 +219,10 @@ int main()
                         printf("origin (%d , %d) -- destination (%d , %d)\n" , Origin_x , Origin_y , Destination_x , Destination_y ) ;
                         // should send soldiers from origin to destination //
                         if ( Origin_counter != clicked_cell_info.counter && map_arr[Origin_counter].soldiers_number != 0 )
-                        {
-                            CreateLineOfSoldiers(AllSoldiersArray , map_arr , Origin_counter , clicked_cell_info) ;
-                        }
+                            CreateLineOfSoldiers(AllSoldiersArray , map_arr , Origin_counter , clicked_cell_info , SOLDIERS_POWER_ARRAY) ;
 
                     }
-
-                    SDL_Delay(200) ;
+                    SDL_Delay(150) ;
                     break;
 
                 case SDL_MOUSEBUTTONUP:
@@ -239,8 +231,8 @@ int main()
         }
 
 
-        ShowLinesOfSoldiers(sdlRenderer , AllSoldiersArray , HEXAGON_A , map_arr) ;
-
+        SoldierConflictSolver(AllSoldiersArray) ;
+        ShowLinesOfSoldiers(sdlRenderer , AllSoldiersArray , HEXAGON_A , map_arr , SPEED_ARRAY ) ;
 
         if ( CheckWinState(CELLS_OWNED) )
         {
@@ -252,7 +244,6 @@ int main()
         SDL_RenderPresent(sdlRenderer) ;
         SDL_Delay(1000/FPS) ;
         i++;
-
     }
 
 
