@@ -55,7 +55,7 @@ int ShowHexagonBackground ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , 
         polygonColor(sdlRenderer , vx , vy , 6 , 0xffffffff) ;
 
         char* soldiers_number = malloc(sizeof(char) * 3) ;
-        sprintf(soldiers_number , "%d" , map[i].soldiers_number) ;
+        sprintf(soldiers_number , "%3.0f" , map[i].soldiers_number) ;
         stringColor(sdlRenderer , center_x-5 , center_y+5 , soldiers_number , 0x44000000) ;
 
     }
@@ -344,7 +344,7 @@ void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersA
                             if ( map_arr[AllSoldiersArray[i][temp_c].destination_counter].soldiers_number < 0 ) {
                                 map_arr[AllSoldiersArray[i][temp_c].destination_counter].owner_id = AllSoldiersArray[i][temp_c].owner_id;
                                 // need
-                                map_arr[AllSoldiersArray[i][temp_c].destination_counter].soldiers_number *= -1;
+                                map_arr[AllSoldiersArray[i][temp_c].destination_counter].soldiers_number = 1;
                             }
                         }
 
@@ -564,8 +564,19 @@ void ApplyPotionEffect ( OnePotionEffect* AllPotionsEffect , float* SPEED_ARRAY,
     for ( int i=0 ; i<4 ; i++)
     {
         if ( AllPotionsEffect[i].potion_id != -1 ) {
-            SPEED_ARRAY[i] = 2;
-            SOLDIERS_POWER_ARRAY[i] = 4;
+            switch ( AllPotionsEffect[i].potion_id ) {
+                case 0 :    // 2X SPEED
+                    SPEED_ARRAY[i] = 2 ;
+                    break;
+                case 1 :
+                    SPEED_ARRAY[i] = 0.5 ;
+                case 2 :
+                    SOLDIERS_POWER_ARRAY[i] = 0.5 ;
+                    break;
+                case 3 :
+                    SOLDIERS_POWER_ARRAY[i] = 2 ;
+                    break;
+            }
         }
         else{
             SPEED_ARRAY[i] = 1;

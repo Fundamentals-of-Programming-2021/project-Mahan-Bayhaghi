@@ -35,6 +35,9 @@ float SOLDIERS_POWER_ARRAY [4] =    { 2 , 1 , 1, 1 };
 Uint32 COLORS[4] = { 0xffa39d8c , 0xff3434eb , 0xff6ebe34 , 0xffb00500 };
                         // grey          // blue          // green        // red
 
+
+Uint32 POTIONS_COLORS[4] = { 0xff00ff00 , 0xff000000 , 0xff00ffff , 0xff0000ff};
+
 int main()
 {
     // Initializing SDL for video and timer and audio
@@ -169,7 +172,7 @@ int main()
         ApplyPotionEffect(AllPotionsArray , SPEED_ARRAY , SOLDIERS_POWER_ARRAY , PRODUCTION_RATE_ARRAY) ;
 
         if ( live_time_potion.potion_id != -1 )
-            filledCircleColor(sdlRenderer, live_time_potion.x, live_time_potion.y, 10, 0xff000000);
+            filledCircleColor(sdlRenderer, live_time_potion.x, live_time_potion.y, 10, POTIONS_COLORS[live_time_potion.potion_id]);
 
 
 
@@ -201,7 +204,7 @@ int main()
                     if ( x<40 && y<40 )
                         shallShowMenu = SDL_TRUE ;
 
-                    clicked_cell_info = GiveClickedCellInfo(x , y , map_arr , NUM_OF_CELLS , 35) ;
+                    clicked_cell_info = GiveClickedCellInfo(x , y , map_arr , NUM_OF_CELLS , HEXAGON_A) ;
                     if ( clicked_cell_info.owner_id == 1 && click_status == 0 )
                     {
                         click_status += 1 ;

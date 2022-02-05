@@ -26,7 +26,7 @@ typedef struct land {
     Sint16 x ;
     Sint16 y ;
     int owner_id ;
-    int soldiers_number ;
+    float soldiers_number ;
     int production_rate ;
     int counter ;
 } land ;
@@ -38,7 +38,7 @@ typedef struct OneSoldier {
     float origin_x ;
     float origin_y ;
     int owner_id ;
-    int power ;
+    float power ;
     float x ;
     float y ;
     float destination_x ;
