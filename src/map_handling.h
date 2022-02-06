@@ -113,7 +113,7 @@ void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersA
 
 
 // a function to solve soldier conflict situation
-void SoldierConflictSolver ( OneSoldier** AllSoldiersArray );
+void SoldierConflictSolver ( OneSoldier** AllSoldiersArray , float* SOLDIERS_POWER_ARRAY);
 
 
 // a function to update map info for managing attacks and winning condition
@@ -128,7 +128,8 @@ void UpdateScore ( ) ;
 // they may or may not move according to situation
 // this function uses CreateLineOfSoldiers just like what user does
 void SystemMakeMovement ( int owner_id , OneSoldier** AllSoldiersArray , land* map_arr
-        , int* CELLS_OWNED , int** LANDS_OWNED_COUNTERS , int NUM_OF_PLAYERS , float* SOLDIERS_POWER_ARRAY ) ;
+        , int* CELLS_OWNED , int** LANDS_OWNED_COUNTERS , int NUM_OF_PLAYERS
+        , float* SOLDIERS_POWER_ARRAY , int* IMMUNE_LANDS_ARRAY ) ;
 
 
 // a function to check if any player has won
@@ -159,6 +160,6 @@ void UpdatePotionEffectArray ( OnePotionEffect* AllPotionsEffect ) ;
 
 
 // a function to apply potion effect
-void ApplyPotionEffect ( OnePotionEffect* AllPotionsEffect , float* SPEED_ARRAY,
-                         float* SOLDIERS_POWER_ARRAY , int* PRODUCTION_RATE_ARRAY) ;
+void ApplyPotionEffect ( OnePotionEffect* AllPotionsEffect , float* SPEED_ARRAY, float* SOLDIERS_POWER_ARRAY
+        , int* PRODUCTION_RATE_ARRAY , int* IMMUNE_LANDS_ARRAY) ;
 

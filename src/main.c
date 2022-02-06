@@ -28,13 +28,15 @@ const int NUM_OF_COLS = 16 ;
 float SPEED_ARRAY [5] =             { 1 , 1 , 1 , 1 , 1};
 int PRODUCTION_RATE_ARRAY [5] =     { 0 , 2 , 2 , 2 , 2};
 float SOLDIERS_POWER_ARRAY [5] =    { 1 , 1 , 1 , 1 , 1};
+int IMMUNE_LANDS_ARRAY [5] =        { 0 , 0 , 0 , 0 , 0};
 
 
 Uint32 COLORS[5] = { 0xffa39d8c , 0xff3434eb , 0xff6ebe34 , 0xffb00500 , 0xff0059ff };
                         // grey          // blue          // green        // red
 
 
-Uint32 POTIONS_COLORS[4] = { 0xff00ff00 , 0xff000000 , 0xff00ffff , 0xff0000ff};
+Uint32 POTIONS_COLORS[6] = { 0xff00ff00 , 0xff000000 , 0xff00ffff , 0xff0000ff , 0xfffff000 , 0xff0f0fff};
+
 
 int main()
 {
@@ -92,8 +94,9 @@ int main()
     SDL_Texture *back_to_menu = getImageTexture(sdlRenderer , "../go_back_to_menu.bmp") ;
     SDL_Rect back_to_menu_texture_rect = {.x=0, .y=0, .w=40, .h=40};
 
-    SDL_Texture *potion = getImageTexture(sdlRenderer , "../start.bmp") ;
-    SDL_Rect potion_rect = {.x=0, .y=0, .w=50 , .h=50};
+    SDL_Texture *potion = getImageTexture(sdlRenderer , "../potion_07_yellow.bmp") ;
+    SDL_Rect potion_rect = {.x=0, .y=0, .w=30 , .h=30};
+
 
     int i=1 ;
     SDL_bool shallExit = SDL_FALSE ;
@@ -124,7 +127,6 @@ int main()
     while ( !shallExit )
     {
         i %= 200000 ;
-
         while ( shallShowMenu )
         {
             int condition = ShowMenu(sdlWindow , sdlRenderer , WIDTH , HEIGHT , img) ;
@@ -140,7 +142,6 @@ int main()
 
         UpdateMapInfo(map_arr , NUM_OF_CELLS , CELLS_OWNED , LANDS_OWNED_COUNTERS ) ;
 
-
         SDL_SetRenderDrawColor(sdlRenderer , 0xff , 0xff , 0xff ,0xff) ;
         SDL_RenderClear(sdlRenderer) ;
         SDL_RenderCopy(sdlRenderer, img , NULL, &texture_rect);
@@ -151,7 +152,7 @@ int main()
         if ( i%50 == 20 ) {
             for ( int j=2 ; j<5 ; j++) {
                 SystemMakeMovement(j, AllSoldiersArray, map_arr, CELLS_OWNED, LANDS_OWNED_COUNTERS, 5,
-                                   SOLDIERS_POWER_ARRAY);
+                                   SOLDIERS_POWER_ARRAY , IMMUNE_LANDS_ARRAY );
             }
         }
         if ( i%100 == 0 )
@@ -166,11 +167,13 @@ int main()
 
         CheckForSoldierPotionConflict(AllSoldiersArray, &live_time_potion, AllPotionsArray);
         UpdatePotionEffectArray(AllPotionsArray) ;
-        ApplyPotionEffect(AllPotionsArray , SPEED_ARRAY , SOLDIERS_POWER_ARRAY , PRODUCTION_RATE_ARRAY) ;
+        ApplyPotionEffect(AllPotionsArray , SPEED_ARRAY , SOLDIERS_POWER_ARRAY , PRODUCTION_RATE_ARRAY , IMMUNE_LANDS_ARRAY) ;
 
-        if ( live_time_potion.potion_id != -1 )
-            filledCircleColor(sdlRenderer, live_time_potion.x, live_time_potion.y, 10, POTIONS_COLORS[live_time_potion.potion_id]);
-
+        if ( live_time_potion.potion_id != -1 ) {
+            potion_rect.x = live_time_potion.x - 15 ;
+            potion_rect.y = live_time_potion.y - 15 ;
+            SDL_RenderCopy(sdlRenderer, potion , NULL, &potion_rect);
+        }
 
 
         if ( click_status == 1 )    // aim helper //
@@ -218,9 +221,11 @@ int main()
                         Destination_y = clicked_cell_info.y ;
                         printf("origin (%d , %d) -- destination (%d , %d)\n" , Origin_x , Origin_y , Destination_x , Destination_y ) ;
                         // should send soldiers from origin to destination //
-                        if ( Origin_counter != clicked_cell_info.counter && map_arr[Origin_counter].soldiers_number != 0 )
-                            CreateLineOfSoldiers(AllSoldiersArray , map_arr , Origin_counter , clicked_cell_info , SOLDIERS_POWER_ARRAY) ;
+                        if ( Origin_counter != clicked_cell_info.counter && map_arr[Origin_counter].soldiers_number != 0
+                            && IMMUNE_LANDS_ARRAY[clicked_cell_info.owner_id] != 1
+                            && map_arr[Origin_counter].owner_id == 1 )
 
+                            CreateLineOfSoldiers(AllSoldiersArray , map_arr , Origin_counter , clicked_cell_info , SOLDIERS_POWER_ARRAY) ;
                     }
                     SDL_Delay(150) ;
                     break;
@@ -231,7 +236,7 @@ int main()
         }
 
 
-        SoldierConflictSolver(AllSoldiersArray) ;
+        SoldierConflictSolver(AllSoldiersArray , SOLDIERS_POWER_ARRAY) ;
         ShowLinesOfSoldiers(sdlRenderer , AllSoldiersArray , HEXAGON_A , map_arr , SPEED_ARRAY ) ;
 
         if ( CheckWinState(CELLS_OWNED) )
