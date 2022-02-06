@@ -69,6 +69,11 @@ typedef struct OnePotionEffect {
 // A simple test function to see if header is included correctly
 void map_handling_test_func () ;
 
+
+// a function to Initialize data needed for map
+void InitMap ( int desired_num_of_players ) ;
+
+
 // function to create randomized hexagon map
 // returns pointer to out game map ( pointer to an array of lands )
 land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map , int HEXAGON_a) ;
@@ -79,7 +84,7 @@ land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRend
 int ShowHexagonBackground ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , land* map , int counter , Sint16 a) ;
 
 
-// function to add soldiers to an array of lands
+// function to add soldiers to an array of lands accorging to their production rate
 void AddSoldiers ( land* map , int counter , int* PRODUCTION_RATE_ARRAY ) ;
 
 
@@ -89,9 +94,17 @@ land GiveClickedCellInfo ( Sint16 x , Sint16 y , land* map , int counter , int H
 
 
 // a function to create a line of soldiers from map_arr[Origin_counter] to map_arr[Destination_cell_info.counter] in
-// first free place of AllSoldierArray which is going to be rendered on screen
+// first free place of AllSoldierArray
 void CreateLineOfSoldiers ( OneSoldier** AllSoldiersArray , land* map_arr , int Origin_counter , land Destination_cell_info
         , float* SOLDIERS_POWER_ARRAY ) ;
+
+
+// a function to check whether the soldiers is in valid place to consider or not
+// returns 1 if soldier is out of origin and should be considered
+// else returns 0 ( which means this soldier is not actually on screen )
+int ShouldConsiderSoldier ( OneSoldier soldier_data , float verticalSpeed , float horizontalSpeed) ;
+
+
 
 // a function to show soldiers if they haven't reached to their destination
 // or to destroy a soldier if reached destination
@@ -99,7 +112,7 @@ void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersA
                             , float* SPEED_ARRAY ) ;
 
 
-// a function to set conflicting soldiers power to zero
+// a function to solve soldier conflict situation
 void SoldierConflictSolver ( OneSoldier** AllSoldiersArray );
 
 
@@ -134,6 +147,7 @@ Potion CreatePotion ( int WIDTH , int HEIGHT ) ;
 void CheckForSoldierPotionConflict ( OneSoldier** AllSoldiersArray , Potion* live_time_potion
                                      , OnePotionEffect* AllPotionsEffect ) ;
 
+
 // a function to create a potion effect in global array AllPotionsArray
 // returns 1 if potion effect is created
 // else returns 0
@@ -142,7 +156,6 @@ int CreatePotionEffect ( Potion potion_info , OnePotionEffect* AllPotionsArray ,
 
 // a function to update potion effect data
 void UpdatePotionEffectArray ( OnePotionEffect* AllPotionsEffect ) ;
-
 
 
 // a function to apply potion effect

@@ -15,24 +15,22 @@
 #include "map_handling.h"
 #include "background_handling.h"
 
-#define 	GFX_FONTDATAMAX   (8*256)
 
 const int WIDTH = 800 ;
 const int HEIGHT = 600 ;
 const int FPS = 60 ;
 const int PRO_RATE = 1 ;
 const int INIT_SOLDIER = 25 ;
-const int NUMBER_OF_PLAYERS = 3 ;
 const int HEXAGON_A = 28 ;
 const int NUM_OF_ROWS = 8 ;
 const int NUM_OF_COLS = 16 ;
 
-float SPEED_ARRAY [4] =             { 1 , 1 , 1 , 1 };
-int PRODUCTION_RATE_ARRAY [4] =     { 0 , 2 , 2 , 2};
-float SOLDIERS_POWER_ARRAY [4] =    { 2 , 1 , 1, 1 };
+float SPEED_ARRAY [5] =             { 1 , 1 , 1 , 1 , 1};
+int PRODUCTION_RATE_ARRAY [5] =     { 0 , 2 , 2 , 2 , 2};
+float SOLDIERS_POWER_ARRAY [5] =    { 1 , 1 , 1 , 1 , 1};
 
 
-Uint32 COLORS[4] = { 0xffa39d8c , 0xff3434eb , 0xff6ebe34 , 0xffb00500 };
+Uint32 COLORS[5] = { 0xffa39d8c , 0xff3434eb , 0xff6ebe34 , 0xffb00500 , 0xff0059ff };
                         // grey          // blue          // green        // red
 
 
@@ -60,6 +58,7 @@ int main()
     test_func() ;
     map_handling_test_func() ;
 
+    InitMap(5) ;
 
     // creating sdlWindow and sdlRenderer
     SDL_Window *sdlWindow = SDL_CreateWindow("State.io" , SDL_WINDOWPOS_CENTERED , SDL_WINDOWPOS_CENTERED , WIDTH , HEIGHT , SDL_WINDOW_OPENGL) ;
@@ -71,14 +70,14 @@ int main()
 
     // Generating map_arr
     land* map_arr = malloc(sizeof(land) * NUM_OF_COLS*NUM_OF_ROWS ) ;
-    map_arr = GENERATE_HEXAGON_RANDOM_MAP(sdlWindow , sdlRenderer , 3 , WIDTH , HEIGHT , map_arr , HEXAGON_A ) ;
+    map_arr = GENERATE_HEXAGON_RANDOM_MAP(sdlWindow , sdlRenderer , 5 , WIDTH , HEIGHT , map_arr , HEXAGON_A ) ;
     int NUM_OF_CELLS = ShowHexagonBackground(sdlWindow , sdlRenderer , map_arr , 84 , HEXAGON_A) ;
 
     // an array to save number of cells owned by each owner_id
-    int* CELLS_OWNED = calloc( 4 , sizeof(int)) ;
+    int* CELLS_OWNED = calloc( 5 , sizeof(int)) ;
     // an array to save counter of each owner_id lands
-    int** LANDS_OWNED_COUNTERS = malloc(sizeof(int*) * 4 ) ;
-    for ( int i=0 ; i<4 ; i++)
+    int** LANDS_OWNED_COUNTERS = malloc(sizeof(int*) * 5 ) ;
+    for ( int i=0 ; i<5 ; i++)
         LANDS_OWNED_COUNTERS[i] = calloc( NUM_OF_CELLS , sizeof(int)) ;
     // updating map info
     UpdateMapInfo(map_arr , NUM_OF_CELLS , CELLS_OWNED , LANDS_OWNED_COUNTERS ) ;
@@ -108,8 +107,6 @@ int main()
     Sint16 Destination_x = 0 ;
     Sint16 Destination_y = 0 ;
 
-    int Potion_condition = 0 ;
-    int Potion_time_to_exist = 0 ;
 
     Potion live_time_potion = {.potion_id=-1} ;
 
@@ -118,8 +115,8 @@ int main()
     OneSoldier** AllSoldiersArray = calloc(2*NUM_OF_CELLS , sizeof(OneSoldier*) ) ;
 
     // a very important array to save activated Potions data
-    OnePotionEffect* AllPotionsArray = calloc(4 , sizeof(OnePotionEffect)) ;
-    for ( int temp=0 ; temp<4 ; temp++)
+    OnePotionEffect* AllPotionsArray = calloc(5 , sizeof(OnePotionEffect)) ;
+    for ( int temp=0 ; temp<5 ; temp++)
     {
         AllPotionsArray[temp].potion_id = -1 ;
     }
@@ -151,12 +148,12 @@ int main()
 
         ShowHexagonBackground(sdlWindow , sdlRenderer , map_arr , NUM_OF_CELLS , HEXAGON_A) ;
 
-        if ( i%50 == 20 )
-            SystemMakeMovement(2 , AllSoldiersArray , map_arr , CELLS_OWNED , LANDS_OWNED_COUNTERS , NUMBER_OF_PLAYERS , SOLDIERS_POWER_ARRAY) ;
-
-        if ( i%50 == 49 )
-            SystemMakeMovement(3 , AllSoldiersArray , map_arr , CELLS_OWNED , LANDS_OWNED_COUNTERS , NUMBER_OF_PLAYERS , SOLDIERS_POWER_ARRAY) ;
-
+        if ( i%50 == 20 ) {
+            for ( int j=2 ; j<5 ; j++) {
+                SystemMakeMovement(j, AllSoldiersArray, map_arr, CELLS_OWNED, LANDS_OWNED_COUNTERS, 5,
+                                   SOLDIERS_POWER_ARRAY);
+            }
+        }
         if ( i%100 == 0 )
             AddSoldiers(map_arr , NUM_OF_CELLS , PRODUCTION_RATE_ARRAY ) ;
 

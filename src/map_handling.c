@@ -5,13 +5,21 @@
 #include "map_handling.h"
 #include "background_handling.h"
 
-Uint32 MAP_HANDLING_COLORS[4] = { 0xffa39d8c , 0xff3434eb , 0xff6ebe34 , 0xffb00500 };
+Uint32 MAP_HANDLING_COLORS[5] = { 0xffa39d8c , 0xff3434eb , 0xff6ebe34 , 0xffb00500 , 0xff0059ff };
 // grey          // blue          // green        // red
+
+int NUM_OF_PLAYERS = 4 ;
+float MAIN_SPEED = 6.0 ;
 
 
 void map_handling_test_func()
 {
     printf("this is a test from map_handling header\n") ;
+}
+
+void InitMap ( int desired_num_of_players )
+{
+    NUM_OF_PLAYERS = desired_num_of_players ;
 }
 
 __attribute__((unused)) void GENERATE_RANDOM_MAP ( int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map )
@@ -56,14 +64,14 @@ int ShowHexagonBackground ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , 
 
         char* soldiers_number = malloc(sizeof(char) * 3) ;
         sprintf(soldiers_number , "%3.0f" , map[i].soldiers_number) ;
-        stringColor(sdlRenderer , center_x-5 , center_y+5 , soldiers_number , 0x44000000) ;
+        stringColor(sdlRenderer , center_x-10 , center_y+5 , soldiers_number , 0x33000000) ;
 
     }
 }
 
 land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map , int HEXAGON_a)
 {
-    int* ownership_watcher = calloc(4 , sizeof(int)) ;
+    int* ownership_watcher = calloc( NUM_OF_PLAYERS , sizeof(int)) ;
 
     srand(time(0)) ;
     Sint16 start_x_pos = rand()%40 + 50 ;
@@ -81,7 +89,6 @@ land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRend
         else
             center_x = start_x_pos+ 1.5*HEXAGON_a ;
 
-        Sint16 a = HEXAGON_a ;
         for ( int j=0 ; j<8 ; j++) {
             if ( rand()%7 == 0 || rand()%5 == 0 || rand()%8 == 0 || rand()%3 == 0 )
             {
@@ -90,7 +97,7 @@ land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRend
 
                 if ( rand()%7 == 0 || rand()%10 == 0 || rand()%16 == 0 )   // USER or SYSTEM land //
                 {
-                    map[counter].owner_id = rand() % 3 + 1;
+                    map[counter].owner_id = rand()%(NUM_PLAYERS-1) + 1;
                     map[counter].soldiers_number = 25;
                     if (map[counter].owner_id == 1)
                         map[counter].type = USER;
@@ -114,13 +121,13 @@ land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRend
         center_y += (Sint16) (sqrt(3)*HEXAGON_a/2) ;
     }
 
-    for ( int i=1 ; i<4 ; i++)
+    for ( int i=1 ; i<NUM_PLAYERS ; i++)
     {
         if ( ownership_watcher[i] < 4 )
         {
             int temp_counter = 0 ;
             while ( map[temp_counter].owner_id != 0 && temp_counter<counter )
-                temp_counter++ ;
+            temp_counter++ ;
 
             map[temp_counter].owner_id = i ;
             map[temp_counter].soldiers_number = 25 ;
@@ -259,12 +266,12 @@ void CreateLineOfSoldiers ( OneSoldier** AllSoldiersArray , land* map_arr , int 
     double delta_x = Destination_cell_info.x - (map_arr[Origin_counter].x) ;
     double theta = delta_y / delta_x ;
 
-    AllSoldiersArray[i][0].verticalSpeed = 8.0 * sin(atan(theta) ) ;
+    AllSoldiersArray[i][0].verticalSpeed = MAIN_SPEED * sin(atan(theta) ) ;
     if ( delta_y > 0 )
         AllSoldiersArray[i][0].verticalSpeed = fabs(AllSoldiersArray[i][0].verticalSpeed) ;
     else if ( delta_y <0 )
         AllSoldiersArray[i][0].verticalSpeed = -1 * fabs(AllSoldiersArray[i][0].verticalSpeed) ;
-    AllSoldiersArray[i][0].horizontalSpeed = 8.0 * cos(atan(theta) ) ;
+    AllSoldiersArray[i][0].horizontalSpeed = MAIN_SPEED * cos(atan(theta) ) ;
     if ( delta_x > 0 )
         AllSoldiersArray[i][0].horizontalSpeed = fabs(AllSoldiersArray[i][0].horizontalSpeed) ;
     else if ( delta_x <0 )
@@ -293,6 +300,22 @@ void CreateLineOfSoldiers ( OneSoldier** AllSoldiersArray , land* map_arr , int 
 }
 
 
+int ShouldConsiderSoldier ( OneSoldier soldier_data , float verticalSpeed , float horizontalSpeed)
+{
+    if ( horizontalSpeed>0 && soldier_data.x<soldier_data.origin_x )
+        return 0;
+    else if ( horizontalSpeed<0 && soldier_data.x>soldier_data.origin_x )
+        return 0;
+
+    else if ( verticalSpeed>0 && soldier_data.y<soldier_data.origin_y )
+        return 0;
+
+    else if ( verticalSpeed<0 && soldier_data.y>soldier_data.origin_y )
+        return 0;
+
+    return 1 ;
+}
+
 void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersArray , int HEXAGON_A , land* map_arr
                             , float* SPEED_ARRAY )
 {
@@ -309,19 +332,20 @@ void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersA
                     // drawing soldiers on screen if they are actually out of their land
                     // or if they have any power (A.K.A power != 0 )
                     float r = fabs(AllSoldiersArray[i][temp_c].power) * 1.5 ;
-                    int should_draw = 1 ;
-                    if ( AllSoldiersArray[i][0].horizontalSpeed>0 && AllSoldiersArray[i][temp_c].x<AllSoldiersArray[i][temp_c].origin_x ) {
-                        should_draw = 0;
-                    }
-                    else if ( AllSoldiersArray[i][0].horizontalSpeed<0 && AllSoldiersArray[i][temp_c].x>AllSoldiersArray[i][temp_c].origin_x) {
-                        should_draw = 0;
-                    }
-                    if ( AllSoldiersArray[i][0].verticalSpeed>0 && AllSoldiersArray[i][temp_c].y<AllSoldiersArray[i][temp_c].origin_y){
-                        should_draw = 0 ;
-                    }
-                    else if ( AllSoldiersArray[i][0].verticalSpeed<0 && AllSoldiersArray[i][temp_c].y>AllSoldiersArray[i][temp_c].origin_y) {
-                        should_draw = 0;
-                    }
+                    int should_draw = ShouldConsiderSoldier(AllSoldiersArray[i][temp_c] , AllSoldiersArray[i][0].verticalSpeed ,
+                                                            AllSoldiersArray[i][0].horizontalSpeed) ;
+//                    if ( AllSoldiersArray[i][0].horizontalSpeed>0 && AllSoldiersArray[i][temp_c].x<AllSoldiersArray[i][temp_c].origin_x ) {
+//                        should_draw = 0;
+//                    }
+//                    else if ( AllSoldiersArray[i][0].horizontalSpeed<0 && AllSoldiersArray[i][temp_c].x>AllSoldiersArray[i][temp_c].origin_x) {
+//                        should_draw = 0;
+//                    }
+//                    if ( AllSoldiersArray[i][0].verticalSpeed>0 && AllSoldiersArray[i][temp_c].y<AllSoldiersArray[i][temp_c].origin_y){
+//                        should_draw = 0 ;
+//                    }
+//                    else if ( AllSoldiersArray[i][0].verticalSpeed<0 && AllSoldiersArray[i][temp_c].y>AllSoldiersArray[i][temp_c].origin_y) {
+//                        should_draw = 0;
+//                    }
 
                     if ( should_draw && r != 0 ) {
                         aacircleColor(sdlRenderer, AllSoldiersArray[i][temp_c].x, AllSoldiersArray[i][temp_c].y,
@@ -369,7 +393,7 @@ void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersA
 void UpdateMapInfo(land *map_arr , int NUM_OF_CELLS , int* CELLS_OWNED , int** LANDS_OWNED_COUNTERS)
 {
 
-    for ( int i=0 ; i<4 ; i++)
+    for ( int i=0 ; i<NUM_OF_PLAYERS ; i++)
         CELLS_OWNED[i] = 0 ;
 
     for ( int i=0 ; i<NUM_OF_CELLS ; i++)
@@ -412,13 +436,13 @@ void SystemMakeMovement ( int owner_id , OneSoldier** AllSoldiersArray , land* m
 int CheckWinState ( int* CELLS_OWNED )
 {
     int number_of_zeroes = 0 ;
-    for ( int i=1 ; i<4 ; i++)
+    for ( int i=1 ; i<NUM_OF_PLAYERS ; i++)
     {
         if ( CELLS_OWNED[i] == 0 )
             number_of_zeroes += 1 ;
     }
 
-    return (number_of_zeroes == 2 ) ;
+    return (number_of_zeroes == (NUM_OF_PLAYERS-1) ) ;
 }
 
 
@@ -438,8 +462,11 @@ void SoldierConflictSolver ( OneSoldier** AllSoldiersArray )
                         for ( int from_second = 0 ; from_second<AllSoldiersArray[j][0].num_of_all_soldiers ; from_second++)
                         {
                             if ( fabs(AllSoldiersArray[i][from_first].x - AllSoldiersArray[j][from_second].x)<5 &&
-                                 fabs(AllSoldiersArray[i][from_first].y - AllSoldiersArray[j][from_second].y)<5 &&
-                                 AllSoldiersArray[i][from_first].power != 0 && AllSoldiersArray[j][from_second].power != 0)
+                                 fabs(AllSoldiersArray[i][from_first].y - AllSoldiersArray[j][from_second].y)<5
+                                 && ShouldConsiderSoldier(AllSoldiersArray[i][from_first] , AllSoldiersArray[i][0].verticalSpeed ,
+                                                          AllSoldiersArray[i][0].horizontalSpeed)
+                                 && ShouldConsiderSoldier(AllSoldiersArray[j][from_second] , AllSoldiersArray[j][0].verticalSpeed ,
+                                                                                   AllSoldiersArray[j][0].horizontalSpeed) )
                             {
                                 if ( AllSoldiersArray[i][from_first].power == AllSoldiersArray[j][from_second].power ) {
                                     AllSoldiersArray[i][from_first].power = 0;
@@ -488,25 +515,6 @@ Potion CreatePotion ( int WIDTH , int HEIGHT )
     return returning_potion ;
 }
 
-//int CheckForSoldierPotionConflict ( OneSoldier** AllSoldiersArray , Potion live_time_potion)
-//{
-//    for ( int i=0 ; i<50 ; i++)
-//    {
-//        if ( AllSoldiersArray[i] != 0 || AllSoldiersArray[i] != NULL )
-//        {
-//            for ( int sol_counter=0 ; sol_counter<AllSoldiersArray[i][0].num_of_all_soldiers ; sol_counter++)
-//            {
-//                if ( fabs(live_time_potion.x - AllSoldiersArray[i][sol_counter].x) <= 5 &&
-//                     fabs(live_time_potion.y - AllSoldiersArray[i][sol_counter].y) <= 5)
-//                {
-//                    return AllSoldiersArray[i][sol_counter].owner_id ;
-//                }
-//            }
-//        }
-//    }
-//
-//    return -1 ;
-//}
 
 void CheckForSoldierPotionConflict ( OneSoldier** AllSoldiersArray , Potion *live_time_potion
         , OnePotionEffect* AllPotionsEffect )
@@ -549,7 +557,7 @@ int CreatePotionEffect ( Potion potion_info , OnePotionEffect* AllPotionsArray ,
 
 void UpdatePotionEffectArray ( OnePotionEffect* AllPotionsEffect )
 {
-    for ( int i=0 ; i<4 ; i++)
+    for ( int i=0 ; i<NUM_OF_PLAYERS ; i++)
     {
         if ( AllPotionsEffect[i].potion_id != -1 )
             AllPotionsEffect[i].time_to_exist -= 1 ;
@@ -561,19 +569,20 @@ void UpdatePotionEffectArray ( OnePotionEffect* AllPotionsEffect )
 
 void ApplyPotionEffect ( OnePotionEffect* AllPotionsEffect , float* SPEED_ARRAY, float* SOLDIERS_POWER_ARRAY , int* PRODUCTION_RATE_ARRAY)
 {
-    for ( int i=0 ; i<4 ; i++)
+    for ( int i=0 ; i<NUM_OF_PLAYERS ; i++)
     {
         if ( AllPotionsEffect[i].potion_id != -1 ) {
             switch ( AllPotionsEffect[i].potion_id ) {
                 case 0 :    // 2X SPEED
                     SPEED_ARRAY[i] = 2 ;
                     break;
-                case 1 :
+                case 1 :    // 0.5X SPEED
                     SPEED_ARRAY[i] = 0.5 ;
-                case 2 :
+                    break;
+                case 2 :    // 0.5X POWER
                     SOLDIERS_POWER_ARRAY[i] = 0.5 ;
                     break;
-                case 3 :
+                case 3 :    // 2X POWER
                     SOLDIERS_POWER_ARRAY[i] = 2 ;
                     break;
             }
