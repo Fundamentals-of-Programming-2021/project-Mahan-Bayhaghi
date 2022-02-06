@@ -5,47 +5,12 @@
 #include "map_handling.h"
 #include "background_handling.h"
 
-Uint32 MAP_HANDLING_COLORS[5] = { 0xff808080 , 0xd03434eb , 0xd06ebe34 , 0xd0b00500 , 0xd00059ff };
-                                    // grey          // blue          // green        // red        // orange
+Uint32 MAP_HANDLING_COLORS[6] = { 0xffa39d8c , 0xff3434eb , 0xff6ebe34 , 0xffb00500 , 0xff0059ff , 0xff00ffff};
+                                    // grey          // blue          // green        // red        // orange       // yellow
 
-int NUM_OF_PLAYERS = 4 ;
 float MAIN_SPEED = 6.0 ;
 
-
-void map_handling_test_func()
-{
-    printf("this is a test from map_handling header\n") ;
-}
-
-void InitMap ( int desired_num_of_players )
-{
-    NUM_OF_PLAYERS = desired_num_of_players ;
-}
-
-__attribute__((unused)) void GENERATE_RANDOM_MAP ( int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map )
-{
-    int random_x ;
-    int random_y ;
-
-    int counter = 0 ;
-
-    srand(time(0)) ;
-    for ( int i=0 ; i<NUM_PLAYERS ; i++)
-    {
-        random_x = rand() % WIDTH ;
-        random_y = rand() % HEIGHT ;
-
-        if ( random_x > 20 && random_y > 20 && random_x<WIDTH-20 && random_y<HEIGHT-20)
-        {
-            map[counter].x = random_x ;
-            map[counter].y = random_y ;
-            map[counter].owner_id = i ;
-            map[counter].type = HEXAGON ;
-        }
-    }
-}
-
-int ShowHexagonBackground ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , land* map , int counter , Sint16 a)
+int ShowHexagonBackground ( SDL_Renderer* sdlRenderer , land* map , int counter , Sint16 a)
 {
     for ( int i=0 ; i<counter ; i++)
     {
@@ -60,29 +25,21 @@ int ShowHexagonBackground ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , 
         vy[0] = (center_y) ;  vy[1] = (center_y-(sqrt(3)*a/2)) ; vy[2] = (center_y-(sqrt(3)*a/2)) ;
         vy[3] = (center_y) ;  vy[4] = (center_y+(sqrt(3)*a/2)) ; vy[5] = (center_y+(sqrt(3)*a/2)) ;
 
-
-        Uint32 color = MAP_HANDLING_COLORS[map[i].owner_id] ;
-        int count = map[i].soldiers_number / 30 ;
-        count = count>4 ? 4 : count ;
-        for ( count ; count>0 ; count--)
-            color += 0x0a000000 ;
-
-        filledPolygonColor(sdlRenderer , vx , vy , 6 , color ) ;
+        filledPolygonColor(sdlRenderer , vx , vy , 6 , MAP_HANDLING_COLORS[map[i].owner_id] ) ;
         polygonColor(sdlRenderer , vx , vy , 6 , 0xffffffff) ;
 
-        char* soldiers_number = malloc(sizeof(char) * 3) ;
+        char* soldiers_number = malloc(sizeof(char) * 4) ;
         sprintf(soldiers_number , "%3.0f" , map[i].soldiers_number) ;
-        stringColor(sdlRenderer , center_x-10 , center_y+5 , soldiers_number , 0x33000000) ;
+        stringColor(sdlRenderer , center_x-12 , center_y+5 , soldiers_number , 0x22000000) ;
 
     }
 }
 
-land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map , int HEXAGON_a)
+land* GENERATE_HEXAGON_RANDOM_MAP (int NUM_PLAYERS , int NUM_COLS , int NUM_ROWS , land* map , int HEXAGON_a)
 {
-    int* ownership_watcher = calloc( NUM_OF_PLAYERS , sizeof(int)) ;
-
+    int* ownership_watcher = calloc( NUM_PLAYERS , sizeof(int)) ;
     srand(time(0)) ;
-    Sint16 start_x_pos = rand()%40 + 50 ;
+    Sint16 start_x_pos = rand()%40 + 40 ;
     Sint16 start_y_pos = rand()%40 + 100 ;
 
     Sint16 center_x ;
@@ -90,20 +47,21 @@ land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRend
 
     int counter = 0 ;
 
-    for ( int i=0 ; i<16 ; i++)
+    for ( int i=0 ; i<NUM_ROWS ; i++)
     {
         if ( i%2==0 )
             center_x = start_x_pos ;
         else
             center_x = start_x_pos+ 1.5*HEXAGON_a ;
 
-        for ( int j=0 ; j<8 ; j++) {
-            if ( rand()%7 == 0 || rand()%5 == 0 || rand()%8 == 0 || rand()%3 == 0 )
+        for ( int j=0 ; j<NUM_COLS/2 ; j++) {
+            int num_rand = rand() ;
+            if ( num_rand%7 == 0 || num_rand%5 == 0 || num_rand%8 == 0 || num_rand%3 == 0 )
             {
                 map[counter].x = center_x ;
                 map[counter].y = center_y ;
 
-                if ( rand()%7 == 0 || rand()%10 == 0 || rand()%16 == 0 )   // USER or SYSTEM land //
+                if ( num_rand%7 == 0 || num_rand%10 == 0 || num_rand%16 == 0 )   // USER or SYSTEM land //
                 {
                     map[counter].owner_id = rand()%(NUM_PLAYERS-1) + 1;
                     map[counter].soldiers_number = 25;
@@ -131,18 +89,14 @@ land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRend
 
     for ( int i=1 ; i<NUM_PLAYERS ; i++)
     {
-        if ( ownership_watcher[i] < 4 )
+        while ( ownership_watcher[i] < 4 )
         {
             int temp_counter = 0 ;
             while ( map[temp_counter].owner_id != 0 && temp_counter<counter )
-            temp_counter++ ;
+                temp_counter++ ;
 
             map[temp_counter].owner_id = i ;
             map[temp_counter].soldiers_number = 25 ;
-            if ( i== 1 )
-                map[temp_counter].type = USER ;
-            else
-                map[temp_counter].type = SYSTEM ;
             map[temp_counter].production_rate = 2 ;
             ownership_watcher[i] += 1 ;
         }
@@ -150,68 +104,6 @@ land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRend
 
     return  map ;
 }
-
-// temp generate_hexagon_random_map
-//land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map , int HEXAGON_a)
-//{
-//    int* ownership_watcher = calloc(4 , sizeof(int)) ;
-//
-//    srand(time(0)) ;
-//    Sint16 start_x_pos = rand()%40 + 50 ;
-//    Sint16 start_y_pos = rand()%40 + 100 ;
-//
-//    Sint16 center_x ;
-//    Sint16 center_y = start_y_pos ;
-//
-//    int counter = 0 ;
-//
-//    for ( int i=0 ; i<16 ; i++)
-//    {
-//        if ( i%2==0 )
-//            center_x = start_x_pos ;
-//        else
-//            center_x = start_x_pos+ 1.5*HEXAGON_a ;
-//
-//        Sint16 a = HEXAGON_a ;
-//        for ( int j=0 ; j<8 ; j++) {
-//            if ( rand()%7 == 0 || rand()%5 == 0 || rand()%8 == 0 )
-//            {
-//                map[counter].x = center_x ;
-//                map[counter].y = center_y ;
-//                map[counter].production_rate = 0 ;
-//                map[counter].soldiers_number = 25 ;
-//                map[counter].owner_id = 0 ;
-//                map[counter].counter = counter ;
-//                counter++;
-//            }
-//            center_x += 3*HEXAGON_a ;
-//        }
-//        center_y += (Sint16) (sqrt(3)*HEXAGON_a/2) ;
-//    }
-//
-//    for ( int i=0 ; i<counter ; i++)
-//    {
-//        if ( rand()%6 == 0 )
-//        {
-//            int new_ownership = rand()%3 + 1 ;
-//            map[i].owner_id = new_ownership ;
-//            map[i].production_rate = 2 ;
-//
-//            int temp_counter = i ;
-//
-//            // up-left land //
-//
-//            // going forward enough 2 lands //
-//
-//            // going up enough 3 lands //
-//
-//            // goint down enough 3 lands //
-//
-//        }
-//    }
-//
-//    return  map ;
-//}
 
 void AddSoldiers ( land* map , int counter , int* PRODUCTION_RATE_ARRAY )
 {
@@ -290,8 +182,8 @@ void CreateLineOfSoldiers ( OneSoldier** AllSoldiersArray , land* map_arr , int 
     int c = map_arr[Origin_counter].soldiers_number ;
     for ( int temp_c = 1 ; temp_c<c ; temp_c++ )
     {
-        AllSoldiersArray[i][temp_c].x = AllSoldiersArray[i][temp_c-1].x - 1.5*AllSoldiersArray[i][0].horizontalSpeed ;
-        AllSoldiersArray[i][temp_c].y = AllSoldiersArray[i][temp_c-1].y - 1.5*AllSoldiersArray[i][0].verticalSpeed ;
+        AllSoldiersArray[i][temp_c].x = AllSoldiersArray[i][temp_c-1].x - 1.6*AllSoldiersArray[i][0].horizontalSpeed ;
+        AllSoldiersArray[i][temp_c].y = AllSoldiersArray[i][temp_c-1].y - 1.6*AllSoldiersArray[i][0].verticalSpeed ;
         AllSoldiersArray[i][temp_c].destination_x = AllSoldiersArray[i][0].destination_x ;
         AllSoldiersArray[i][temp_c].destination_y = AllSoldiersArray[i][0].destination_y ;
         AllSoldiersArray[i][temp_c].destination_counter = AllSoldiersArray[i][0].destination_counter ;
@@ -385,10 +277,10 @@ void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersA
 }
 
 
-void UpdateMapInfo(land *map_arr , int NUM_OF_CELLS , int* CELLS_OWNED , int** LANDS_OWNED_COUNTERS)
+void UpdateMapInfo(land *map_arr , int NUM_OF_CELLS , int* CELLS_OWNED , int** LANDS_OWNED_COUNTERS , int NUM_PLAYERS)
 {
 
-    for ( int i=0 ; i<NUM_OF_PLAYERS ; i++)
+    for ( int i=0 ; i<NUM_PLAYERS ; i++)
         CELLS_OWNED[i] = 0 ;
 
     for ( int i=0 ; i<NUM_OF_CELLS ; i++)
@@ -430,16 +322,15 @@ void SystemMakeMovement ( int owner_id , OneSoldier** AllSoldiersArray , land* m
 }
 
 
-int CheckWinState ( int* CELLS_OWNED )
+int CheckWinState ( int* CELLS_OWNED , int NUM_PLAYERS )
 {
     int number_of_zeroes = 0 ;
-    for ( int i=1 ; i<NUM_OF_PLAYERS ; i++)
+    for ( int i=1 ; i<NUM_PLAYERS ; i++)
     {
         if ( CELLS_OWNED[i] == 0 )
             number_of_zeroes += 1 ;
     }
-
-    return (number_of_zeroes == (NUM_OF_PLAYERS-1) ) ;
+    return (number_of_zeroes == (NUM_PLAYERS-1) ) ;
 }
 
 
@@ -517,8 +408,8 @@ void CheckForSoldierPotionConflict ( OneSoldier** AllSoldiersArray , Potion *liv
         {
             for ( int sol_counter=0 ; sol_counter<AllSoldiersArray[i][0].num_of_all_soldiers ; sol_counter++ )
             {
-                if ( fabs(AllSoldiersArray[i][sol_counter].x - live_time_potion->x) <= 10 &&
-                     fabs(AllSoldiersArray[i][sol_counter].y - live_time_potion->y) <= 10)
+                if ( fabs(AllSoldiersArray[i][sol_counter].x - live_time_potion->x) <= 20 &&
+                     fabs(AllSoldiersArray[i][sol_counter].y - live_time_potion->y) <= 20)
                 {
                     if ( CreatePotionEffect( *live_time_potion , AllPotionsEffect , AllSoldiersArray[i][sol_counter].owner_id ) == 1 )
                     {
@@ -536,17 +427,34 @@ int CreatePotionEffect ( Potion potion_info , OnePotionEffect* AllPotionsArray ,
 {
     if ( AllPotionsArray[Destination_owner].potion_id == -1 )   // should create owner
     {
-        AllPotionsArray[Destination_owner].time_to_exist = 400 ;
-        AllPotionsArray[Destination_owner].owner_id = Destination_owner ;
         AllPotionsArray[Destination_owner].potion_id = potion_info.potion_id ;
+        switch (potion_info.potion_id) {
+            case 0 :    // 2X SPEED
+            case 1 :    // 0.5X SPEED
+                AllPotionsArray[Destination_owner].time_to_exist = 600 ;
+                break;
+            case 2 :    // 0.5X POWER
+            case 3 :    // 2X POWER
+                AllPotionsArray[Destination_owner].time_to_exist = 500 ;
+                break;
+            case 4 :    // GOLDEN POTION
+            case 5 :    // SILVER POTION
+                AllPotionsArray[Destination_owner].time_to_exist = 300 ;
+                break;
+            case 6:
+            case 7:
+                AllPotionsArray[Destination_owner].time_to_exist = 400 ;
+                break;
+        }
+        AllPotionsArray[Destination_owner].owner_id = Destination_owner ;
         return 1 ;
     }
     return 0 ;
 }
 
-void UpdatePotionEffectArray ( OnePotionEffect* AllPotionsEffect )
+void UpdatePotionEffectArray ( OnePotionEffect* AllPotionsEffect , int NUM_PLAYERS )
 {
-    for ( int i=0 ; i<NUM_OF_PLAYERS ; i++)
+    for ( int i=0 ; i<NUM_PLAYERS ; i++)
     {
         if ( AllPotionsEffect[i].potion_id != -1 )
             AllPotionsEffect[i].time_to_exist -= 1 ;
@@ -557,47 +465,50 @@ void UpdatePotionEffectArray ( OnePotionEffect* AllPotionsEffect )
 }
 
 void ApplyPotionEffect ( OnePotionEffect* AllPotionsEffect , float* SPEED_ARRAY, float* SOLDIERS_POWER_ARRAY
-                         , int* PRODUCTION_RATE_ARRAY , int* IMMUNE_LANDS_ARRAY)
+                         , int* PRODUCTION_RATE_ARRAY , int* IMMUNE_LANDS_ARRAY , int NUM_PLAYERS)
 {
-    for ( int i=0 ; i<NUM_OF_PLAYERS ; i++)
+    int global_act = 0 ;
+    for ( int i=0 ; i<NUM_PLAYERS ; i++)
     {
         if ( AllPotionsEffect[i].potion_id != -1 ) {
             switch ( AllPotionsEffect[i].potion_id ) {
-                case 0 :    // 2X SPEED
+                case 0 :    // 2X SPEED     // RED POTION
                     SPEED_ARRAY[i] = 2 ;
                     break;
-                case 1 :    // 0.5X SPEED
+                case 1 :    // 0.5X SPEED   // RED POTION
                     SPEED_ARRAY[i] = 0.5 ;
                     break;
-                case 2 :    // 0.5X POWER
+                case 2 :    // 0.5X POWER   // BLUE POTION
                     SOLDIERS_POWER_ARRAY[i] = 0.5 ;
                     break;
                 case 3 :    // 2X POWER
-                    SOLDIERS_POWER_ARRAY[i] = 2 ;
+                    SOLDIERS_POWER_ARRAY[i] = 2 ;   // ORANGE POTION
                     break;
-                case 4 :    // 0X SPEED for all enemies
-                    for ( int temp=1 ; temp<NUM_OF_PLAYERS ; temp++ )
+                case 4 :    // 0X SPEED for all enemies     // GOLD POTION
+                    for ( int temp=1 ; temp<NUM_PLAYERS ; temp++ )
                     {
-                        if ( temp != i )
+                        if ( temp != i && AllPotionsEffect[temp].potion_id == -1 )
                             SPEED_ARRAY[temp] = 0 ;
                     }
+                    global_act = 1 ;
                     break;
-                case 5 :    // 0.5X SPEED for all enemies
-                    for ( int temp=1 ; temp<NUM_OF_PLAYERS ; temp++ )
+                case 5 :    // 0.5X SPEED for all enemies   // SILVER POTION
+                    for ( int temp=1 ; temp<NUM_PLAYERS ; temp++ )
                     {
-                        if ( temp != i )
+                        if ( temp != i && AllPotionsEffect[temp].potion_id == -1 )
                             SPEED_ARRAY[temp] = 0.5 ;
                     }
+                    global_act = 1 ;
                     break;
-                case 6 :
+                case 6 :    // 2X PRODUCTION  SPEED     // GREEN POTION
                     PRODUCTION_RATE_ARRAY[i] = 4 ;
                     break;
-                case 7 :    // Immunity against attack
+                case 7 :    // Immunity against attack  // SHIELD POTION
                     IMMUNE_LANDS_ARRAY[i] = 1 ;
                     break;
             }
         }
-        else{
+        else if ( global_act != 1 ){
             SPEED_ARRAY[i] = 1;
             SOLDIERS_POWER_ARRAY[i] = 1;
             IMMUNE_LANDS_ARRAY[i] = 0 ;
@@ -606,3 +517,46 @@ void ApplyPotionEffect ( OnePotionEffect* AllPotionsEffect , float* SPEED_ARRAY,
     }
 }
 
+
+void DisplayPotionsEffect ( SDL_Renderer* sdlRenderer , OnePotionEffect* AllPotionsEffect , SDL_Texture* POTION_GRAPHIC[8]
+, int NUM_PLAYERS)
+{
+    char* EFFECTS[8] = { "SUPER FAST !" , "HALF SPEED" , "HALF POWER" , "SUPER STRONG !"
+                         , "JUST WOW !" , "GOOD CHANCE !" , "HARDWORKING" , "IMMUNE"} ;
+    int y_to_write = 20 ;
+    for ( int i=0 ; i<NUM_PLAYERS; i++)
+    {
+        if ( AllPotionsEffect[i].potion_id != -1 )
+        {
+            SDL_Rect potion_rect = { .x=200 , .y=y_to_write , .w=10 , .h=10 } ;
+            SDL_RenderCopy(sdlRenderer , POTION_GRAPHIC[AllPotionsEffect[i].potion_id] , NULL ,  &potion_rect) ;
+            Sint16 vx[4] = { 220 , 220+AllPotionsEffect[i].time_to_exist , 220+AllPotionsEffect[i].time_to_exist , 220  } ;
+            Sint16 vy[4] = { y_to_write , y_to_write , y_to_write+10 , y_to_write+10  };
+            filledPolygonColor(sdlRenderer , vx , vy , 4 , MAP_HANDLING_COLORS[AllPotionsEffect[i].owner_id]) ;
+            stringColor(sdlRenderer , 220+AllPotionsEffect[i].time_to_exist + 10 , 20 , EFFECTS[AllPotionsEffect[i].potion_id] , 0xff000000) ;
+            y_to_write += 20 ;
+        }
+    }
+}
+
+
+void AimAssist ( SDL_Renderer* sdlRenderer , SDL_Event sdlEvent
+                 , land* map_arr , int NUM_OF_CELLS , int HEXAGON_A , int Origin_x , int Origin_y )
+{
+    land mouse_cell = GiveClickedCellInfo(sdlEvent.motion.x , sdlEvent.motion.y , map_arr , NUM_OF_CELLS , HEXAGON_A ) ;
+    SDL_SetRenderDrawColor(sdlRenderer, 0x00, 0x00, 0x00, 0x99);
+    if ( mouse_cell.owner_id != -1 ) {
+        SDL_RenderDrawLine(sdlRenderer, Origin_x, Origin_y, mouse_cell.x, mouse_cell.y);
+        filledCircleColor(sdlRenderer , mouse_cell.x , mouse_cell.y , 2 , 0x99000000) ;
+    }
+    else if ( sdlEvent.motion.x != 0 && sdlEvent.motion.y != 0)
+        SDL_RenderDrawLine(sdlRenderer, Origin_x, Origin_y, sdlEvent.motion.x , sdlEvent.motion.y);
+}
+
+void RenderPotion ( SDL_Renderer *sdlRenderer , Potion live_time_potion , SDL_Texture** POTION_GRAPHIC)
+{
+    if ( live_time_potion.potion_id == -1 )
+        return;
+    SDL_Rect potion_rect = {.x = live_time_potion.x - 20 , .y = live_time_potion.y - 20 , .w=40 , .h=40} ;
+    SDL_RenderCopy(sdlRenderer, POTION_GRAPHIC[live_time_potion.potion_id], NULL, &potion_rect);
+}

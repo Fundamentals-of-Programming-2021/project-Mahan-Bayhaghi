@@ -19,24 +19,17 @@
 const int WIDTH = 800 ;
 const int HEIGHT = 600 ;
 const int FPS = 60 ;
-const int PRO_RATE = 1 ;
-const int INIT_SOLDIER = 25 ;
-const int HEXAGON_A = 28 ;
-const int NUM_OF_ROWS = 8 ;
-const int NUM_OF_COLS = 16 ;
+const int HEXAGON_A = 26 ;
+const int NUM_OF_ROWS = 20 ;
+const int NUM_OF_COLS = 18 ;
 
-float SPEED_ARRAY [5] =             { 1 , 1 , 1 , 1 , 1};
-int PRODUCTION_RATE_ARRAY [5] =     { 0 , 2 , 2 , 2 , 2};
-float SOLDIERS_POWER_ARRAY [5] =    { 1 , 1 , 1 , 1 , 1};
-int IMMUNE_LANDS_ARRAY [5] =        { 0 , 0 , 0 , 0 , 0};
+const int NUMBER_OF_PLAYERS = 4 ;
 
-
-Uint32 COLORS[5] = { 0xffa39d8c , 0xff3434eb , 0xff6ebe34 , 0xffb00500 , 0xff0059ff };
-                        // grey          // blue          // green        // red
-
-
-Uint32 POTIONS_COLORS[6] = { 0xff00ff00 , 0xff000000 , 0xff00ffff , 0xff0000ff , 0xfffff000 , 0xff0f0fff};
-
+float SPEED_ARRAY [6] =             { 1 , 1 , 1 , 1 , 1 , 1};
+int PRODUCTION_RATE_ARRAY [6] =     { 0 , 2 , 2 , 2 , 2 , 2};
+float SOLDIERS_POWER_ARRAY [6] =    { 1 , 1 , 1 , 1 , 1 , 1};
+int IMMUNE_LANDS_ARRAY [6] =        { 0 , 0 , 0 , 0 , 0 , 0};
+SDL_Texture* POTION_GRAPHIC[8] ;
 
 int main()
 {
@@ -56,76 +49,77 @@ int main()
         }
     }
 
-    // testing headers
-    test_func() ;
-    map_handling_test_func() ;
-
-    InitMap(5) ;
-
-    // creating sdlWindow and sdlRenderer
+    // game main sdlWindow
     SDL_Window *sdlWindow = SDL_CreateWindow("State.io" , SDL_WINDOWPOS_CENTERED , SDL_WINDOWPOS_CENTERED , WIDTH , HEIGHT , SDL_WINDOW_OPENGL) ;
+
+    // game main sdlRenderer
     SDL_Renderer *sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED) ;
+
     // creating white screen for entrance
     SDL_SetRenderDrawColor(sdlRenderer , 0xff , 0xff , 0xff , 0xff ) ;
     SDL_RenderClear(sdlRenderer) ;
 
-
     // Generating map_arr
-    land* map_arr = malloc(sizeof(land) * NUM_OF_COLS*NUM_OF_ROWS ) ;
-    map_arr = GENERATE_HEXAGON_RANDOM_MAP(sdlWindow , sdlRenderer , 5 , WIDTH , HEIGHT , map_arr , HEXAGON_A ) ;
-    int NUM_OF_CELLS = ShowHexagonBackground(sdlWindow , sdlRenderer , map_arr , 84 , HEXAGON_A) ;
+    land* map_arr = malloc(sizeof(land) * (NUM_OF_ROWS * NUM_OF_COLS) ) ;
+    if ( map_arr == NULL ) {
+        fprintf(stderr, "map allocation error");
+        return 0;
+    }
+    map_arr = GENERATE_HEXAGON_RANDOM_MAP(NUMBER_OF_PLAYERS , NUM_OF_COLS , NUM_OF_ROWS , map_arr , HEXAGON_A ) ;
+    int NUM_OF_CELLS = ShowHexagonBackground( sdlRenderer , map_arr , NUM_OF_ROWS*NUM_OF_COLS , HEXAGON_A) ;
 
     // an array to save number of cells owned by each owner_id
-    int* CELLS_OWNED = calloc( 5 , sizeof(int)) ;
-    // an array to save counter of each owner_id lands
-    int** LANDS_OWNED_COUNTERS = malloc(sizeof(int*) * 5 ) ;
-    for ( int i=0 ; i<5 ; i++)
-        LANDS_OWNED_COUNTERS[i] = calloc( NUM_OF_CELLS , sizeof(int)) ;
-    // updating map info
-    UpdateMapInfo(map_arr , NUM_OF_CELLS , CELLS_OWNED , LANDS_OWNED_COUNTERS ) ;
+    int* CELLS_OWNED = calloc( NUMBER_OF_PLAYERS , sizeof(int)) ;
 
+    // an array to save counter of each owner_id lands
+    int** LANDS_OWNED_COUNTERS = malloc(  NUMBER_OF_PLAYERS * sizeof(int*) ) ;
+    for ( int i=0 ; i<NUMBER_OF_PLAYERS ; i++)
+        LANDS_OWNED_COUNTERS[i] = calloc( NUM_OF_CELLS , sizeof(int)) ;
+
+    // updating map info
+    UpdateMapInfo(map_arr , NUM_OF_CELLS , CELLS_OWNED , LANDS_OWNED_COUNTERS , NUMBER_OF_PLAYERS ) ;
 
     // getting background picture as texture
     SDL_Texture *img = getImageTexture(sdlRenderer , "../back.bmp") ;
     SDL_Rect texture_rect = {.x=0, .y=0, .w=WIDTH, .h=HEIGHT};
 
-
     // getting go_back_to_menu picture as texture
     SDL_Texture *back_to_menu = getImageTexture(sdlRenderer , "../go_back_to_menu.bmp") ;
     SDL_Rect back_to_menu_texture_rect = {.x=0, .y=0, .w=40, .h=40};
 
-    SDL_Texture *potion = getImageTexture(sdlRenderer , "../potion_07_yellow.bmp") ;
+    // Initializing potion textures
+    InitializePotionGraphics(sdlRenderer , POTION_GRAPHIC) ;
     SDL_Rect potion_rect = {.x=0, .y=0, .w=30 , .h=30};
 
-
+    /////////////////variable definitions/////////////////
+    // game primary counter
     int i=1 ;
     SDL_bool shallExit = SDL_FALSE ;
     SDL_bool shallShowMenu = SDL_TRUE ;
-
+    // variable to check mouse status
     int click_status = 0 ;
-
+    // bunch of needed variables for user interaction
     Sint16 Origin_x = 0 ;
     Sint16 Origin_y = 0 ;
     int Origin_counter = 0 ;
     Sint16 Destination_x = 0 ;
     Sint16 Destination_y = 0 ;
-
-
+    // variable containing data of potion that is on screen
     Potion live_time_potion = {.potion_id=-1} ;
-
+    //////////////////////////////////////////////////////
 
     // a very important array to save moving soldiers data
     OneSoldier** AllSoldiersArray = calloc(2*NUM_OF_CELLS , sizeof(OneSoldier*) ) ;
 
     // a very important array to save activated Potions data
-    OnePotionEffect* AllPotionsArray = calloc(5 , sizeof(OnePotionEffect)) ;
-    for ( int temp=0 ; temp<5 ; temp++)
-    {
+    OnePotionEffect* AllPotionsArray = calloc(NUMBER_OF_PLAYERS , sizeof(OnePotionEffect)) ;
+    for ( int temp=0 ; temp<NUMBER_OF_PLAYERS ; temp++)
         AllPotionsArray[temp].potion_id = -1 ;
-    }
 
+    //////////////// game /////////////////
     while ( !shallExit )
     {
+        UpdateMapInfo(map_arr , NUM_OF_CELLS , CELLS_OWNED , LANDS_OWNED_COUNTERS , NUMBER_OF_PLAYERS) ;
         i %= 200000 ;
         while ( shallShowMenu )
         {
@@ -140,53 +134,34 @@ int main()
             }
         }
 
-        UpdateMapInfo(map_arr , NUM_OF_CELLS , CELLS_OWNED , LANDS_OWNED_COUNTERS ) ;
-
-        SDL_SetRenderDrawColor(sdlRenderer , 0xff , 0xff , 0xff ,0xff) ;
-        SDL_RenderClear(sdlRenderer) ;
-        SDL_RenderCopy(sdlRenderer, img , NULL, &texture_rect);
-        SDL_RenderCopy(sdlRenderer, back_to_menu , NULL, &back_to_menu_texture_rect);
-
-        ShowHexagonBackground(sdlWindow , sdlRenderer , map_arr , NUM_OF_CELLS , HEXAGON_A) ;
+        DrawBackground(sdlRenderer , img , HEIGHT , WIDTH) ;
+        ShowHexagonBackground( sdlRenderer , map_arr , NUM_OF_CELLS , HEXAGON_A) ;
 
         if ( i%50 == 20 ) {
-            for ( int j=2 ; j<5 ; j++) {
-                SystemMakeMovement(j, AllSoldiersArray, map_arr, CELLS_OWNED, LANDS_OWNED_COUNTERS, 5,
-                                   SOLDIERS_POWER_ARRAY , IMMUNE_LANDS_ARRAY );
-            }
+            for ( int j=2 ; j<NUMBER_OF_PLAYERS ; j++)
+                SystemMakeMovement(j, AllSoldiersArray, map_arr, CELLS_OWNED
+                                   , LANDS_OWNED_COUNTERS, 5
+                                   , SOLDIERS_POWER_ARRAY , IMMUNE_LANDS_ARRAY );
         }
-        if ( i%100 == 0 )
+
+        if ( i%80 == 0 )
             AddSoldiers(map_arr , NUM_OF_CELLS , PRODUCTION_RATE_ARRAY ) ;
 
+        if ( i%550 == 50 )
+            live_time_potion = CreatePotion(WIDTH , HEIGHT) ;
+
+
+        CheckForSoldierPotionConflict(AllSoldiersArray, &live_time_potion, AllPotionsArray);
+        UpdatePotionEffectArray(AllPotionsArray , NUMBER_OF_PLAYERS) ;
+        ApplyPotionEffect(AllPotionsArray , SPEED_ARRAY , SOLDIERS_POWER_ARRAY , PRODUCTION_RATE_ARRAY , IMMUNE_LANDS_ARRAY , NUMBER_OF_PLAYERS) ;
+        RenderPotion(sdlRenderer , live_time_potion , POTION_GRAPHIC ) ;
 
         SDL_Event sdlEvent;
         land clicked_cell_info ;
 
-        if ( i%400 == 50 )
-            live_time_potion = CreatePotion(WIDTH , HEIGHT) ;
+        if ( click_status == 1 )
+            AimAssist(sdlRenderer , sdlEvent , map_arr , NUM_OF_CELLS , HEXAGON_A , Origin_x , Origin_y ) ;
 
-        CheckForSoldierPotionConflict(AllSoldiersArray, &live_time_potion, AllPotionsArray);
-        UpdatePotionEffectArray(AllPotionsArray) ;
-        ApplyPotionEffect(AllPotionsArray , SPEED_ARRAY , SOLDIERS_POWER_ARRAY , PRODUCTION_RATE_ARRAY , IMMUNE_LANDS_ARRAY) ;
-
-        if ( live_time_potion.potion_id != -1 ) {
-            potion_rect.x = live_time_potion.x - 15 ;
-            potion_rect.y = live_time_potion.y - 15 ;
-            SDL_RenderCopy(sdlRenderer, potion , NULL, &potion_rect);
-        }
-
-
-        if ( click_status == 1 )    // aim helper //
-        {
-            land mouse_cell = GiveClickedCellInfo(sdlEvent.motion.x , sdlEvent.motion.y , map_arr , NUM_OF_CELLS , HEXAGON_A ) ;
-            SDL_SetRenderDrawColor(sdlRenderer, 0x00, 0x00, 0x00, 0xff);
-            if ( mouse_cell.owner_id != -1 ) {
-                SDL_RenderDrawLine(sdlRenderer, Origin_x, Origin_y, mouse_cell.x, mouse_cell.y);
-                filledCircleColor(sdlRenderer , mouse_cell.x , mouse_cell.y , 2 , 0xff000000) ;
-            }
-            else if ( sdlEvent.motion.x != 0 && sdlEvent.motion.y != 0)
-                SDL_RenderDrawLine(sdlRenderer, Origin_x, Origin_y, sdlEvent.motion.x , sdlEvent.motion.y);
-        }
 
         while (SDL_PollEvent(&sdlEvent)) {
             Sint32 x = sdlEvent.motion.x ;
@@ -239,18 +214,17 @@ int main()
         SoldierConflictSolver(AllSoldiersArray , SOLDIERS_POWER_ARRAY) ;
         ShowLinesOfSoldiers(sdlRenderer , AllSoldiersArray , HEXAGON_A , map_arr , SPEED_ARRAY ) ;
 
-        if ( CheckWinState(CELLS_OWNED) )
+        if ( CheckWinState(CELLS_OWNED , NUMBER_OF_PLAYERS) )
         {
             printf("game over\n") ;
             return 0 ;
         }
 
-
+        DisplayPotionsEffect(sdlRenderer , AllPotionsArray , POTION_GRAPHIC , NUMBER_OF_PLAYERS) ;
         SDL_RenderPresent(sdlRenderer) ;
         SDL_Delay(1000/FPS) ;
         i++;
     }
-
 
 
 
@@ -260,6 +234,7 @@ int main()
     SDL_free(back_to_menu) ;
     free(AllSoldiersArray) ;
     free(map_arr) ;
+
 
     // Destroying window and program //
     SDL_DestroyTexture(img) ;

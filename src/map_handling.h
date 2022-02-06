@@ -76,12 +76,12 @@ void InitMap ( int desired_num_of_players ) ;
 
 // function to create randomized hexagon map
 // returns pointer to out game map ( pointer to an array of lands )
-land* GENERATE_HEXAGON_RANDOM_MAP (SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int NUM_PLAYERS , int WIDTH , int HEIGHT , land* map , int HEXAGON_a) ;
+land* GENERATE_HEXAGON_RANDOM_MAP (int NUM_PLAYERS , int NUM_COLS , int NUM_ROWS , land* map , int HEXAGON_a) ;
 
 
 // function to display hexagon map
 // returns number of cells in the game
-int ShowHexagonBackground ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , land* map , int counter , Sint16 a) ;
+int ShowHexagonBackground ( SDL_Renderer* sdlRenderer , land* map , int counter , Sint16 a) ;
 
 
 // function to add soldiers to an array of lands accorging to their production rate
@@ -117,7 +117,7 @@ void SoldierConflictSolver ( OneSoldier** AllSoldiersArray , float* SOLDIERS_POW
 
 
 // a function to update map info for managing attacks and winning condition
-void UpdateMapInfo(land *map_arr , int NUM_OF_CELLS , int* CELLS_OWNED , int** LANDS_OWNED_COUNTERS) ;
+void UpdateMapInfo(land *map_arr , int NUM_OF_CELLS , int* CELLS_OWNED , int** LANDS_OWNED_COUNTERS , int NUM_PLAYERS) ;
 
 
 // a function to update system and also user score
@@ -134,7 +134,7 @@ void SystemMakeMovement ( int owner_id , OneSoldier** AllSoldiersArray , land* m
 
 // a function to check if any player has won
 // returns 0 if not else returns 1
-int CheckWinState ( int* CELLS_OWNED ) ;
+int CheckWinState ( int* CELLS_OWNED , int NUM_PLAYERS) ;
 
 
 // a function that may or may not create random accessible potion
@@ -156,10 +156,23 @@ int CreatePotionEffect ( Potion potion_info , OnePotionEffect* AllPotionsArray ,
 
 
 // a function to update potion effect data
-void UpdatePotionEffectArray ( OnePotionEffect* AllPotionsEffect ) ;
+void UpdatePotionEffectArray ( OnePotionEffect* AllPotionsEffect , int NUM_PLAYERS ) ;
 
 
 // a function to apply potion effect
 void ApplyPotionEffect ( OnePotionEffect* AllPotionsEffect , float* SPEED_ARRAY, float* SOLDIERS_POWER_ARRAY
-        , int* PRODUCTION_RATE_ARRAY , int* IMMUNE_LANDS_ARRAY) ;
+        , int* PRODUCTION_RATE_ARRAY , int* IMMUNE_LANDS_ARRAY , int NUM_PLAYERS) ;
 
+
+// a function to display potion effect data on screen
+void DisplayPotionsEffect ( SDL_Renderer* sdlRenderer , OnePotionEffect* AllPotionsEffect , SDL_Texture* POTION_GRAPHIC[8]
+        , int NUM_PLAYERS) ;
+
+
+// simply a function to help you aim
+void AimAssist ( SDL_Renderer* sdlRenderer , SDL_Event sdlEvent
+                 , land* map_arr , int NUM_OF_CELLS , int HEXAGON_A , int Origin_x , int Origin_y ) ;
+
+
+// a function to show Potion on screen
+void RenderPotion ( SDL_Renderer *sdlRenderer , Potion live_time_potion , SDL_Texture** POTION_GRAPHIC) ;

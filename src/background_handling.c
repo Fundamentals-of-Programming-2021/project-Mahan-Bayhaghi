@@ -86,5 +86,23 @@ int ShowMenu (SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int WIDTH , in
     }
 }
 
+void InitializePotionGraphics ( SDL_Renderer* sdlRenderer , SDL_Texture** POTION_GRAPHIC)
+{
+    POTION_GRAPHIC[0] = getImageTexture(sdlRenderer , "../img/red_potion.bmp") ;
+    POTION_GRAPHIC[1] = getImageTexture(sdlRenderer , "../img/red_potion.bmp") ;
+    POTION_GRAPHIC[2] = getImageTexture(sdlRenderer , "../img/blue_potion.bmp") ;
+    POTION_GRAPHIC[3] = getImageTexture(sdlRenderer , "../img/orange_potion.bmp") ;
+    POTION_GRAPHIC[4] = getImageTexture(sdlRenderer , "../img/gold_potion.bmp")  ;
+    POTION_GRAPHIC[5] = getImageTexture(sdlRenderer , "../img/silver_potion.bmp") ;
+    POTION_GRAPHIC[6] = getImageTexture(sdlRenderer , "../img/green_potion.bmp") ;
+    POTION_GRAPHIC[7] = getImageTexture(sdlRenderer , "../img/shield_potion.bmp") ;
+}
+
+void DrawBackground ( SDL_Renderer * sdlRenderer , SDL_Texture* Background_image , int HEIGHT , int WIDTH){
+    SDL_SetRenderDrawColor(sdlRenderer , 0xff , 0xff , 0xff ,0xff) ;
+    SDL_RenderClear(sdlRenderer) ;
+    SDL_Rect back_rect = {.x=0 , .y=0 , .h = HEIGHT , .w=WIDTH} ;
+    SDL_RenderCopy( sdlRenderer , Background_image , NULL , &back_rect) ;
+}
 
 

@@ -18,6 +18,15 @@
 
 void test_func() ;
 
+// a function to get texture from image
 SDL_Texture *getImageTexture(SDL_Renderer *sdlRenderer, char *image_path) ;
 
+// a function to show menu
 int ShowMenu (SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int WIDTH , int HEIGHT ,SDL_Texture *img ) ;
+
+// a function to Initialize graphics of potions
+void InitializePotionGraphics ( SDL_Renderer* sdlRenderer , SDL_Texture** POTION_GRAPHIC) ;
+
+// a function to Draw game background
+void DrawBackground ( SDL_Renderer * sdlRenderer , SDL_Texture* Background_image , int HEIGHT , int WIDTH) ;
+
