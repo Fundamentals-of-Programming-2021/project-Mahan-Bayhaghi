@@ -23,7 +23,7 @@ const int HEXAGON_A = 26 ;
 const int NUM_OF_ROWS = 20 ;
 const int NUM_OF_COLS = 18 ;
 
-const int NUMBER_OF_PLAYERS = 4 ;
+const int NUMBER_OF_PLAYERS = 6 ;
 
 float SPEED_ARRAY [6] =             { 1 , 1 , 1 , 1 , 1 , 1};
 int PRODUCTION_RATE_ARRAY [6] =     { 0 , 2 , 2 , 2 , 2 , 2};
@@ -55,6 +55,8 @@ int main()
     // game main sdlRenderer
     SDL_Renderer *sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED) ;
 
+    SDL_Texture *castle_texture = getImageTexture(sdlRenderer , "../img/castle.bmp") ;
+
     // creating white screen for entrance
     SDL_SetRenderDrawColor(sdlRenderer , 0xff , 0xff , 0xff , 0xff ) ;
     SDL_RenderClear(sdlRenderer) ;
@@ -66,8 +68,8 @@ int main()
         return 0;
     }
     map_arr = GENERATE_HEXAGON_RANDOM_MAP(NUMBER_OF_PLAYERS , NUM_OF_COLS , NUM_OF_ROWS , map_arr , HEXAGON_A ) ;
-    int NUM_OF_CELLS = ShowHexagonBackground( sdlRenderer , map_arr , NUM_OF_ROWS*NUM_OF_COLS , HEXAGON_A) ;
-
+    int NUM_OF_CELLS = ShowHexagonBackground( sdlRenderer , map_arr , NUM_OF_ROWS*NUM_OF_COLS , HEXAGON_A , castle_texture) ;
+    printf("num of cells is : %d\n" , NUM_OF_CELLS) ;
     // an array to save number of cells owned by each owner_id
     int* CELLS_OWNED = calloc( NUMBER_OF_PLAYERS , sizeof(int)) ;
 
@@ -135,7 +137,7 @@ int main()
         }
 
         DrawBackground(sdlRenderer , img , HEIGHT , WIDTH) ;
-        ShowHexagonBackground( sdlRenderer , map_arr , NUM_OF_CELLS , HEXAGON_A) ;
+        ShowHexagonBackground( sdlRenderer , map_arr , NUM_OF_CELLS , HEXAGON_A , castle_texture) ;
 
         if ( i%50 == 20 ) {
             for ( int j=2 ; j<NUMBER_OF_PLAYERS ; j++)

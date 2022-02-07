@@ -29,6 +29,8 @@ typedef struct land {
     float soldiers_number ;
     int production_rate ;
     int counter ;
+    int IS_MILITARY ;
+    int RELATED_MILITARY_COUNTER ;
 } land ;
 
 // struct containing every soldier information
@@ -66,9 +68,6 @@ typedef struct OnePotionEffect {
     int owner_id ;
 } OnePotionEffect  ;
 
-// A simple test function to see if header is included correctly
-void map_handling_test_func () ;
-
 
 // a function to Initialize data needed for map
 void InitMap ( int desired_num_of_players ) ;
@@ -81,7 +80,7 @@ land* GENERATE_HEXAGON_RANDOM_MAP (int NUM_PLAYERS , int NUM_COLS , int NUM_ROWS
 
 // function to display hexagon map
 // returns number of cells in the game
-int ShowHexagonBackground ( SDL_Renderer* sdlRenderer , land* map , int counter , Sint16 a) ;
+int ShowHexagonBackground ( SDL_Renderer* sdlRenderer , land* map , int counter , Sint16 a , SDL_Texture* castle_texture) ;
 
 
 // function to add soldiers to an array of lands accorging to their production rate
@@ -176,3 +175,7 @@ void AimAssist ( SDL_Renderer* sdlRenderer , SDL_Event sdlEvent
 
 // a function to show Potion on screen
 void RenderPotion ( SDL_Renderer *sdlRenderer , Potion live_time_potion , SDL_Texture** POTION_GRAPHIC) ;
+
+
+// a function to show neighbors of selected land
+void FindNeighbors ( land Origin_land , land* map_arr , int AllCounter , int HEXAGON_A ) ;

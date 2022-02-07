@@ -10,7 +10,7 @@ Uint32 MAP_HANDLING_COLORS[6] = { 0xffa39d8c , 0xff3434eb , 0xff6ebe34 , 0xffb00
 
 float MAIN_SPEED = 6.0 ;
 
-int ShowHexagonBackground ( SDL_Renderer* sdlRenderer , land* map , int counter , Sint16 a)
+int ShowHexagonBackground ( SDL_Renderer* sdlRenderer , land* map , int counter , Sint16 a , SDL_Texture* castle_texture)
 {
     for ( int i=0 ; i<counter ; i++)
     {
@@ -27,11 +27,139 @@ int ShowHexagonBackground ( SDL_Renderer* sdlRenderer , land* map , int counter 
 
         filledPolygonColor(sdlRenderer , vx , vy , 6 , MAP_HANDLING_COLORS[map[i].owner_id] ) ;
         polygonColor(sdlRenderer , vx , vy , 6 , 0xffffffff) ;
+        if ( map[i].IS_MILITARY ) {
+            SDL_Rect castle_rect = {.x = center_x - 10, .y=center_y - 20, .w=20, .h=20};
+            SDL_RenderCopy(sdlRenderer, castle_texture, NULL, &castle_rect);
+        }
 
         char* soldiers_number = malloc(sizeof(char) * 4) ;
         sprintf(soldiers_number , "%3.0f" , map[i].soldiers_number) ;
+//        sprintf(soldiers_number , "%d" , map[i].counter) ;
         stringColor(sdlRenderer , center_x-12 , center_y+5 , soldiers_number , 0x22000000) ;
+    }
+}
 
+//land* GENERATE_HEXAGON_RANDOM_MAP (int NUM_PLAYERS , int NUM_COLS , int NUM_ROWS , land* map , int HEXAGON_a)
+//{
+//    int* ownership_watcher = calloc( NUM_PLAYERS , sizeof(int)) ;
+//    srand(time(0)) ;
+//    Sint16 start_x_pos = rand()%40 + 40 ;
+//    Sint16 start_y_pos = rand()%40 + 100 ;
+//
+//    Sint16 center_x ;
+//    Sint16 center_y = start_y_pos ;
+//
+//    int counter = 0 ;
+//
+//    for ( int i=0 ; i<NUM_ROWS ; i++)
+//    {
+//        if ( i%2==0 )
+//            center_x = start_x_pos ;
+//        else
+//            center_x = start_x_pos+ 1.5*HEXAGON_a ;
+//
+//        for ( int j=0 ; j<NUM_COLS/2 ; j++) {
+//            int num_rand = rand() ;
+//            if ( num_rand%7 == 0 || num_rand%5 == 0 || num_rand%8 == 0 || num_rand%3 == 0 )
+//            {
+//                map[counter].x = center_x ;
+//                map[counter].y = center_y ;
+//
+//                if ( num_rand%7 == 0 || num_rand%10 == 0 || num_rand%16 == 0 )   // USER or SYSTEM land //
+//                {
+//                    map[counter].owner_id = rand()%(NUM_PLAYERS-1) + 1;
+//                    map[counter].soldiers_number = 25;
+//                    if (map[counter].owner_id == 1)
+//                        map[counter].type = USER;
+//                    else
+//                        map[counter].type = SYSTEM;
+//                    map[counter].production_rate = 2;
+//                }
+//                                                                            // NEUTRAL land //
+//                else {
+//                    map[counter].owner_id = 0;
+//                    map[counter].soldiers_number = 25;
+//                    map[counter].type = NEUTRAL;
+//                    map[counter].production_rate = 0;
+//                }
+//                ownership_watcher[map[counter].owner_id] += 1 ;
+//                map[counter].counter = counter ;
+//                counter++;
+//            }
+//            center_x += 3*HEXAGON_a ;
+//        }
+//        center_y += (Sint16) (sqrt(3)*HEXAGON_a/2) ;
+//    }
+//
+//    for ( int i=1 ; i<NUM_PLAYERS ; i++)
+//    {
+//        while ( ownership_watcher[i] < 4 )
+//        {
+//            int temp_counter = 0 ;
+//            while ( map[temp_counter].owner_id != 0 && temp_counter<counter )
+//                temp_counter++ ;
+//
+//            map[temp_counter].owner_id = i ;
+//            map[temp_counter].soldiers_number = 25 ;
+//            map[temp_counter].production_rate = 2 ;
+//            ownership_watcher[i] += 1 ;
+//        }
+//    }
+//
+//    return  map ;
+//}
+
+void GoUp ( const int counter , const int AllCounter , land* map_arr , int HEXAGON_a )
+{
+    srand(time(0)) ;
+    int temp = counter ;
+    int num ;
+    int last_y = map_arr[counter].y ;
+    while ( temp >= 0 )
+    {
+        if ( map_arr[temp].y < map_arr[counter].y &&
+             fabs(map_arr[temp].x - map_arr[counter].x) < 1.7 * HEXAGON_a )
+        {
+            num = rand() % 4 ;
+            if ( num != 2 && map_arr[temp].IS_MILITARY==0 && map_arr[temp].owner_id==0
+                                                             && last_y - map_arr[temp].y <= HEXAGON_a )
+            {
+                map_arr[temp].owner_id = map_arr[counter].owner_id ;
+                map_arr[temp].RELATED_MILITARY_COUNTER = counter ;
+                map_arr[temp].soldiers_number = 25 ;
+                last_y = map_arr[temp].y ;
+            }
+            else
+                break;
+        }
+        temp-- ;
+    }
+}
+
+void GoDown  ( const int counter , const int AllCounter , land* map_arr , int HEXAGON_a )
+{
+    srand(time(0)) ;
+    int temp = counter ;
+    int num ;
+    int last_y = map_arr[counter].y ;
+    while ( temp < AllCounter )
+    {
+        if ( map_arr[temp].y > map_arr[counter].y &&
+             fabs(map_arr[temp].x - map_arr[counter].x) < 1.7 * HEXAGON_a )
+        {
+            num = rand() % 4 ;
+            if ( num != 2 && map_arr[temp].IS_MILITARY==0 && map_arr[temp].owner_id==0
+                 && map_arr[temp].y - last_y <= HEXAGON_a )
+            {
+                map_arr[temp].owner_id = map_arr[counter].owner_id ;
+                map_arr[temp].RELATED_MILITARY_COUNTER = counter ;
+                map_arr[temp].soldiers_number = 25 ;
+                last_y = map_arr[temp].y ;
+            }
+            else
+                break;
+        }
+        temp++ ;
     }
 }
 
@@ -46,7 +174,7 @@ land* GENERATE_HEXAGON_RANDOM_MAP (int NUM_PLAYERS , int NUM_COLS , int NUM_ROWS
     Sint16 center_y = start_y_pos ;
 
     int counter = 0 ;
-
+    // creating a simple random map with no ownership data
     for ( int i=0 ; i<NUM_ROWS ; i++)
     {
         if ( i%2==0 )
@@ -60,26 +188,11 @@ land* GENERATE_HEXAGON_RANDOM_MAP (int NUM_PLAYERS , int NUM_COLS , int NUM_ROWS
             {
                 map[counter].x = center_x ;
                 map[counter].y = center_y ;
-
-                if ( num_rand%7 == 0 || num_rand%10 == 0 || num_rand%16 == 0 )   // USER or SYSTEM land //
-                {
-                    map[counter].owner_id = rand()%(NUM_PLAYERS-1) + 1;
-                    map[counter].soldiers_number = 25;
-                    if (map[counter].owner_id == 1)
-                        map[counter].type = USER;
-                    else
-                        map[counter].type = SYSTEM;
-                    map[counter].production_rate = 2;
-                }
-                                                                            // NEUTRAL land //
-                else {
-                    map[counter].owner_id = 0;
-                    map[counter].soldiers_number = 25;
-                    map[counter].type = NEUTRAL;
-                    map[counter].production_rate = 0;
-                }
-                ownership_watcher[map[counter].owner_id] += 1 ;
+                map[counter].soldiers_number = 25 ;
+                map[counter].IS_MILITARY = 0 ;
                 map[counter].counter = counter ;
+                map[counter].owner_id = 0 ;
+                map[counter].RELATED_MILITARY_COUNTER = -1 ;
                 counter++;
             }
             center_x += 3*HEXAGON_a ;
@@ -87,33 +200,66 @@ land* GENERATE_HEXAGON_RANDOM_MAP (int NUM_PLAYERS , int NUM_COLS , int NUM_ROWS
         center_y += (Sint16) (sqrt(3)*HEXAGON_a/2) ;
     }
 
-    for ( int i=1 ; i<NUM_PLAYERS ; i++)
+    // filling up the map MILITARY BASES
+    int* MILITARY_BASE_WATCHER = calloc(NUM_PLAYERS , sizeof(int)) ;
+    int num ;
+    for ( int i=0 ; i<counter ; i++)
     {
-        while ( ownership_watcher[i] < 4 )
-        {
-            int temp_counter = 0 ;
-            while ( map[temp_counter].owner_id != 0 && temp_counter<counter )
-                temp_counter++ ;
-
-            map[temp_counter].owner_id = i ;
-            map[temp_counter].soldiers_number = 25 ;
-            map[temp_counter].production_rate = 2 ;
-            ownership_watcher[i] += 1 ;
+        if (rand() % 5 == 0 ) {
+            num = rand()%NUM_PLAYERS ;
+            if ( MILITARY_BASE_WATCHER[num] <=3 ) {
+                map[i].owner_id = num;
+                MILITARY_BASE_WATCHER[num] += 1;
+                map[i].IS_MILITARY = 1;
+                map[i].soldiers_number = 25;
+            }
         }
     }
+    for ( int i=0 ; i<NUM_PLAYERS ; i++) {
+        do {
+            num = rand() % counter;
+            if (map[num].IS_MILITARY == 0) {
+                map[num].IS_MILITARY = 1;
+                map[num].owner_id = i;
+                map[num].soldiers_number = 25;
+                MILITARY_BASE_WATCHER[i] += 1;
+            }
+        } while (MILITARY_BASE_WATCHER[i] <= 2);
+    }
 
-    return  map ;
+    // creating colony around each MILITARY BASE
+    for ( int i=0 ; i<counter ; i++ )
+    {
+        if ( map[i].IS_MILITARY )
+        {
+            if ( i%2 == 0 ) {
+                GoDown(i, counter, map, HEXAGON_a);
+                GoUp(i, counter, map, HEXAGON_a);
+            }
+            else {
+                GoUp(i , counter , map , HEXAGON_a) ;
+                GoDown(i , counter , map , HEXAGON_a) ;
+            }
+        }
+        else
+            continue;
+    }
+    return map ;
 }
+
 
 void AddSoldiers ( land* map , int counter , int* PRODUCTION_RATE_ARRAY )
 {
     for ( int i=0 ; i<counter ; i++)
     {
-        if ( map[i].soldiers_number < 120 && map[i].owner_id != 0 ) {
+        if (map[i].soldiers_number < 120 && map[i].owner_id != 0  && map[i].IS_MILITARY) {
             map[i].soldiers_number += PRODUCTION_RATE_ARRAY[map[i].owner_id];
             if (map[i].soldiers_number >= 120)
                 map[i].soldiers_number = 120;
         }
+        else if ( map[i].soldiers_number < 120 && map[i].IS_MILITARY == 0 && map[i].RELATED_MILITARY_COUNTER != -1 &&
+                  map[map[i].RELATED_MILITARY_COUNTER].owner_id == map[i].owner_id && map[i].owner_id != 0 )
+            map[i].soldiers_number += PRODUCTION_RATE_ARRAY[map[i].owner_id] ;
     }
 }
 
@@ -235,17 +381,17 @@ void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersA
                                                             AllSoldiersArray[i][0].horizontalSpeed) ;
 
                     if ( should_draw && r != 0 ) {
-                        aacircleColor(sdlRenderer, AllSoldiersArray[i][temp_c].x, AllSoldiersArray[i][temp_c].y,
-                                      2 * r ,0xffffffff);
+//                        aacircleColor(sdlRenderer, AllSoldiersArray[i][temp_c].x, AllSoldiersArray[i][temp_c].y,
+//                                      2 * r ,0xffffffff);
                         filledCircleColor(sdlRenderer, AllSoldiersArray[i][temp_c].x, AllSoldiersArray[i][temp_c].y,
                                           2 * r, MAP_HANDLING_COLORS[AllSoldiersArray[i][0].owner_id]);
                         filledCircleColor(sdlRenderer, AllSoldiersArray[i][temp_c].x, AllSoldiersArray[i][temp_c].y,
-                                          2 * r, 0x0fffffff);
+                                          2 * r, 0x044000000);
                     }
 
                     // conflict checker
-                    if (fabs(AllSoldiersArray[i][temp_c].x-AllSoldiersArray[i][temp_c].destination_x)/HEXAGON_A <= 0.5 &&
-                        fabs(AllSoldiersArray[i][temp_c].y-AllSoldiersArray[i][temp_c].destination_y)/HEXAGON_A <= 0.5)
+                    if (fabs(AllSoldiersArray[i][temp_c].x-AllSoldiersArray[i][temp_c].destination_x)/HEXAGON_A <= 0.3 &&
+                        fabs(AllSoldiersArray[i][temp_c].y-AllSoldiersArray[i][temp_c].destination_y)/HEXAGON_A <= 0.3)
                     {
                         AllSoldiersArray[i][temp_c].x = -10001;
                         // fighting between two rivals
@@ -387,7 +533,7 @@ Potion CreatePotion ( int WIDTH , int HEIGHT )
         while ( returning_potion.y < 100 || returning_potion.y > 400 )
             returning_potion.y = rand()%HEIGHT + 50 ;
 
-        returning_potion.potion_id = rand()%6 ;
+        returning_potion.potion_id = rand()%8 ;
         return returning_potion ;
     }
 
@@ -408,8 +554,9 @@ void CheckForSoldierPotionConflict ( OneSoldier** AllSoldiersArray , Potion *liv
         {
             for ( int sol_counter=0 ; sol_counter<AllSoldiersArray[i][0].num_of_all_soldiers ; sol_counter++ )
             {
-                if ( fabs(AllSoldiersArray[i][sol_counter].x - live_time_potion->x) <= 20 &&
-                     fabs(AllSoldiersArray[i][sol_counter].y - live_time_potion->y) <= 20)
+                if (ShouldConsiderSoldier(AllSoldiersArray[i][sol_counter] , AllSoldiersArray[i][0].verticalSpeed , AllSoldiersArray[i][0].horizontalSpeed)
+                   &&fabs(AllSoldiersArray[i][sol_counter].x - live_time_potion->x) <= 20
+                   &&fabs(AllSoldiersArray[i][sol_counter].y - live_time_potion->y) <= 20)
                 {
                     if ( CreatePotionEffect( *live_time_potion , AllPotionsEffect , AllSoldiersArray[i][sol_counter].owner_id ) == 1 )
                     {
@@ -533,7 +680,7 @@ void DisplayPotionsEffect ( SDL_Renderer* sdlRenderer , OnePotionEffect* AllPoti
             Sint16 vx[4] = { 220 , 220+AllPotionsEffect[i].time_to_exist , 220+AllPotionsEffect[i].time_to_exist , 220  } ;
             Sint16 vy[4] = { y_to_write , y_to_write , y_to_write+10 , y_to_write+10  };
             filledPolygonColor(sdlRenderer , vx , vy , 4 , MAP_HANDLING_COLORS[AllPotionsEffect[i].owner_id]) ;
-            stringColor(sdlRenderer , 220+AllPotionsEffect[i].time_to_exist + 10 , 20 , EFFECTS[AllPotionsEffect[i].potion_id] , 0xff000000) ;
+            stringColor(sdlRenderer , 220+AllPotionsEffect[i].time_to_exist + 10 , y_to_write , EFFECTS[AllPotionsEffect[i].potion_id] , 0xff000000) ;
             y_to_write += 20 ;
         }
     }
@@ -553,10 +700,18 @@ void AimAssist ( SDL_Renderer* sdlRenderer , SDL_Event sdlEvent
         SDL_RenderDrawLine(sdlRenderer, Origin_x, Origin_y, sdlEvent.motion.x , sdlEvent.motion.y);
 }
 
+
 void RenderPotion ( SDL_Renderer *sdlRenderer , Potion live_time_potion , SDL_Texture** POTION_GRAPHIC)
 {
     if ( live_time_potion.potion_id == -1 )
         return;
     SDL_Rect potion_rect = {.x = live_time_potion.x - 20 , .y = live_time_potion.y - 20 , .w=40 , .h=40} ;
     SDL_RenderCopy(sdlRenderer, POTION_GRAPHIC[live_time_potion.potion_id], NULL, &potion_rect);
+}
+
+
+
+void FindNeighbors ( land Origin_land , land* map_arr , int AllCounter , int HEXAGON_A )
+{
+
 }
