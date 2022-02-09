@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <string.h>
 
 
 enum OWNERSHIP { NEUTRAL , USER , SYSTEM };
@@ -68,10 +69,11 @@ typedef struct OnePotionEffect {
     int owner_id ;
 } OnePotionEffect  ;
 
-
-// a function to Initialize data needed for map
-void InitMap ( int desired_num_of_players ) ;
-
+typedef struct ImportStructure {
+    land* map ;
+    OneSoldier **soldiers ;
+    OnePotionEffect *potions ;
+} ImportStructure ;
 
 // function to create randomized hexagon map
 // returns pointer to out game map ( pointer to an array of lands )
@@ -112,7 +114,7 @@ void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersA
 
 
 // a function to solve soldier conflict situation
-void SoldierConflictSolver ( OneSoldier** AllSoldiersArray , float* SOLDIERS_POWER_ARRAY);
+void SoldierConflictSolver ( OneSoldier** AllSoldiersArray );
 
 
 // a function to update map info for managing attacks and winning condition
@@ -120,8 +122,10 @@ void UpdateMapInfo(land *map_arr , int NUM_OF_CELLS , int* CELLS_OWNED , int** L
 
 
 // a function to update system and also user score
-void UpdateScore ( ) ;
+void UpdateScore (land *map_arr , int* CELLS_OWNED , int** LANDS_OWNED_COUNTERS , int NUM_PLAYERS , int* GLOBAL_POINTS_ARRAY) ;
 
+
+void DisplayScores ( SDL_Renderer* sdlRenderer , int NUM_PLAYERS , int* GLOBAL_POINTS_ARRAY ) ;
 
 // a function to make System players make a proper attack to others
 // they may or may not move according to situation
@@ -132,7 +136,8 @@ void SystemMakeMovement ( int owner_id , OneSoldier** AllSoldiersArray , land* m
 
 
 // a function to check if any player has won
-// returns 0 if not else returns 1
+// returns -1 if no one has won
+// if someone has won , returns owner_id of winner
 int CheckWinState ( int* CELLS_OWNED , int NUM_PLAYERS) ;
 
 
@@ -177,5 +182,29 @@ void AimAssist ( SDL_Renderer* sdlRenderer , SDL_Event sdlEvent
 void RenderPotion ( SDL_Renderer *sdlRenderer , Potion live_time_potion , SDL_Texture** POTION_GRAPHIC) ;
 
 
-// a function to show neighbors of selected land
-void FindNeighbors ( land Origin_land , land* map_arr , int AllCounter , int HEXAGON_A ) ;
+// a function to save map data
+void ExportMap ( land* map_arr , char* Map_name , int NUM_CELLS ) ;
+
+
+// a function to import map data
+void ImportMap ( land* map_arr , char* Map_name , int* NUM_CELLS ) ;
+
+
+// a function to create username
+void GetUsername ( char* username ) ;
+
+
+//int StartNewGame ( const int NUMBER_OF_PLAYERS , const int WIDTH , const int HEIGHT , const int FPS ,
+//                   const int HEXAGON_A , const int NUM_OF_ROWS , const int NUM_OF_COLS ) ;
+
+
+int StartNewGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
+                   const int NUMBER_OF_PLAYERS , const int WIDTH , const int HEIGHT , const int FPS ,
+                   const int HEXAGON_A , const int NUM_OF_ROWS , const int NUM_OF_COLS ) ;
+
+
+
+// a function to load game
+int LoadGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
+               char* Address , const int WIDTH , const int HEIGHT , const int FPS ,
+               const int HEXAGON_A ) ;

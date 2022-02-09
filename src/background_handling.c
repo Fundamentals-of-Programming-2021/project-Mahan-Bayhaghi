@@ -3,6 +3,7 @@
 //
 
 #include "background_handling.h"
+#include "map_handling.h"
 
 
 void test_func()
@@ -25,7 +26,6 @@ SDL_Texture *getImageTexture(SDL_Renderer *sdlRenderer, char *image_path) {
 
 int ShowMenu (SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int WIDTH , int HEIGHT , SDL_Texture* img)
 {
-//    SDL_Texture *img = getImageTexture(sdlRenderer , "../back.bmp") ;
     SDL_Rect texture_rect = {.x=0, .y=0, .w=WIDTH, .h=HEIGHT};
 
     SDL_Texture *start_btn = getImageTexture(sdlRenderer , "../start.bmp") ;
@@ -105,4 +105,134 @@ void DrawBackground ( SDL_Renderer * sdlRenderer , SDL_Texture* Background_image
     SDL_RenderCopy( sdlRenderer , Background_image , NULL , &back_rect) ;
 }
 
+void IntroScreen ( SDL_Renderer* sdlRenderer , int WIDTH , int HEIGHT , SDL_Texture* intro_back)
+{
+    SDL_Rect back_rect = { .x=0 , .y=0 , .w=WIDTH , .h=HEIGHT} ;
+    SDL_RenderCopy(sdlRenderer , intro_back , NULL , &back_rect) ;
+    SDL_RenderPresent(sdlRenderer) ;
+    SDL_Delay(5000) ;
+}
 
+// main menu
+int StartMenu ( SDL_Window *sdlWindow , SDL_Renderer* sdlRenderer )
+{
+    SDL_Texture *back_img = getImageTexture(sdlRenderer , "../back.bmp" ) ;
+    SDL_Rect back_rect = {.x=0 , .y=0 , .w=960 , .h=640};
+
+    SDL_Texture *continue_img = getImageTexture(sdlRenderer , "../continue.bmp" ) ;
+    SDL_Rect continue_rect = {.x = 400 , .y=300 , .w=160 , .h=60};
+
+    SDL_Texture *start_img = getImageTexture(sdlRenderer , "../start.bmp" ) ;
+    SDL_Rect start_rect = {.x=400 , .y=380 , .w=160 , .h=60 };
+
+    SDL_Texture *leaderboard_img = getImageTexture(sdlRenderer , "../leaderboard.bmp" ) ;
+    SDL_Rect leaderboard_rect = {.x=400 , .y=460 , .w=160 , .h=60 };
+
+    SDL_Texture *quit_img = getImageTexture(sdlRenderer , "../start.bmp" ) ;
+    SDL_Rect quit_rect = {.x=400 , .y=540 , .w=160 , .h=60 };
+
+    int cond = 1 ;
+    int return_code ;
+
+    char* file_name = "../dat/tmp/cond.txt" ;
+    FILE* should_con_file = fopen( file_name , "r") ;
+    int to_continue = fgetc(should_con_file) ;
+
+
+    while ( cond ) {
+
+        SDL_RenderCopy(sdlRenderer, back_img, NULL, &back_rect);
+        if ( to_continue == '1')
+            SDL_RenderCopy(sdlRenderer, continue_img, NULL, &continue_rect);
+        SDL_RenderCopy(sdlRenderer, start_img, NULL, &start_rect);
+        SDL_RenderCopy(sdlRenderer, leaderboard_img, NULL, &leaderboard_rect);
+        SDL_RenderCopy(sdlRenderer, quit_img, NULL, &quit_rect);
+
+        SDL_Event sdlEvent ;
+        while (SDL_PollEvent(&sdlEvent))
+        {
+            Sint32 x = sdlEvent.motion.x ;
+            Sint32 y = sdlEvent.motion.y ;
+            switch ( sdlEvent.type )
+            {
+                case SDL_MOUSEBUTTONDOWN:
+                    if ( x>400 && x<560 && y>300 && y<360 && to_continue=='1')
+                    {
+                        return_code = 0 ;
+                        cond = 0 ;
+                    }
+                    else if ( x>400 && x<560 && y>380 && y<440 ) {
+                        return_code = 1;
+                        cond = 0;
+                    }
+                    else if ( x>400 && x<560 && y>460 && y<520 ) {
+                        return_code = 2;
+                        cond = 0;
+                    }
+                    else if ( x>400 && x<560 && y>540 && y<600 ){
+                        return_code = -1 ;
+                        cond = 0 ;
+                    }
+                    break;
+                case SDL_QUIT:
+                    return_code = -1 ;
+                    cond = 0 ;
+                    break;
+            }
+        }
+
+        SDL_RenderPresent(sdlRenderer);
+    }
+
+
+    SDL_free(back_img) ;
+    SDL_free(continue_img) ;
+    SDL_free(start_img) ;
+    SDL_free(leaderboard_img) ;
+    SDL_free(quit_img) ;
+
+
+    return return_code ;
+}
+
+
+
+// choosing map and starting new game
+void NewGame ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer )
+{
+    SDL_Texture *back_img = getImageTexture(sdlRenderer , "../back.bmp") ;
+    SDL_Rect back_rect = {.x=0 , .y=0 , .w=960 , .h=640 };
+
+    SDL_Texture *map1_img = getImageTexture(sdlRenderer , "../start.bmp") ;
+    SDL_Rect map1_rect  = {.x=120 , .y=200 , .w=60 , .h=60 };
+
+    SDL_Texture *map2_img = getImageTexture(sdlRenderer , "../start.bmp") ;
+    SDL_Rect map2_rect  = {.x=200 , .y=200 , .w=60 , .h=60 };
+
+    int cond = 1 ;
+    while ( cond ) {
+        SDL_RenderCopy(sdlRenderer, back_img, NULL, &back_rect);
+        SDL_RenderCopy(sdlRenderer, map1_img, NULL, &map1_rect);
+        SDL_RenderCopy(sdlRenderer, map2_img, NULL, &map2_rect);
+
+        SDL_Event sdlEvent ;
+        while (SDL_PollEvent(&sdlEvent))
+        {
+            Sint32 x = sdlEvent.motion.x ;
+            Sint32 y = sdlEvent.motion.y ;
+            switch (sdlEvent.type) {
+                case SDL_MOUSEBUTTONDOWN:
+                    if ( x>120 && x<180 && y>200 && y<260 )
+                        LoadGame(sdlWindow , sdlRenderer , "../dat/tmp/map_data.dat" , 960 , 640 , 60 , 27 ) ;
+//                        StartNewGame(sdlWindow , sdlRenderer , 5 , 960 , 640 , 60 , 27 , 18 , 18 ) ;
+                    if ( x>200 && x<260 && y>200 && y<260 )
+                        StartNewGame(sdlWindow , sdlRenderer , 5 , 960 , 640 , 60 , 30 , 18 , 18 ) ;
+                    break;
+                case SDL_QUIT:
+                    return;
+            }
+        }
+
+        SDL_RenderPresent(sdlRenderer) ;
+    }
+}

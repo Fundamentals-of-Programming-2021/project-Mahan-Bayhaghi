@@ -1,5 +1,6 @@
 #include <SDL.h>
 #include <SDL2_gfxPrimitives.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -30,3 +31,14 @@ void InitializePotionGraphics ( SDL_Renderer* sdlRenderer , SDL_Texture** POTION
 // a function to Draw game background
 void DrawBackground ( SDL_Renderer * sdlRenderer , SDL_Texture* Background_image , int HEIGHT , int WIDTH) ;
 
+// a simple intro screen
+void IntroScreen ( SDL_Renderer* sdlRenderer , int WIDTH , int HEIGHT , SDL_Texture* intro_back) ;
+
+
+// a function to show start menu
+int StartMenu ( SDL_Window *sdlWindow , SDL_Renderer* sdlRenderer) ;
+
+
+
+
+void NewGame ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer ) ;
