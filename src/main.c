@@ -57,7 +57,6 @@ int main()
 
     SDL_Renderer *sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED) ;
 
-
     int condition ;
     SDL_bool ShallExitGame = SDL_FALSE ;
     while ( !ShallExitGame )
@@ -73,41 +72,29 @@ int main()
         //                               QUIT GAME
 
         condition = StartMenu( sdlWindow ,  sdlRenderer ) ;
-        if ( condition == -1 )
+        if ( condition == 0 )           // continue already saved game
         {
-            // quit the game
-            printf("quitted the game") ;
+            LoadGame(sdlWindow , sdlRenderer , "../dat/tmp/map_data.dat" , 960 , 640 , 60 ) ;
+        }
+
+        if ( condition == 1 )            // go to new game selection page
+            NewGameSelection(sdlWindow , sdlRenderer ) ;
+
+        if ( condition == 2 )            // show leaderboard
+        {
+            printf("show leaderboard\n") ;
+        }
+
+        if ( condition == -1 )          // quit the game
+        {
             ShallExitGame = SDL_TRUE ;
             return 0 ;
         }
 
-        if ( condition == 1 )
-        {
-            // new game
-            printf("new game\n") ;
-            NewGame(sdlWindow , sdlRenderer ) ;
-        }
-
-        if ( condition == 2 )
-        {
-            // show leaderboard
-            printf("show leaderboard\n") ;
-        }
-
-        if ( condition == 0 )
-        {
-            // continue already saved game
-            printf("continue\n") ;
-        }
-
     }
 
-    printf("out of loop\n") ;
     SDL_DestroyRenderer(sdlRenderer) ;
-    printf("renderer destroyed\n") ;
     SDL_DestroyWindow(sdlWindow) ;
-    printf("window destroyed\n") ;
-
 
 //    StartNewGame( 3 , WIDTH , HEIGHT , 80 , 28 , 18 , 16 ) ;
 

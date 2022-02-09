@@ -24,68 +24,6 @@ SDL_Texture *getImageTexture(SDL_Renderer *sdlRenderer, char *image_path) {
     return texture;
 }
 
-int ShowMenu (SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int WIDTH , int HEIGHT , SDL_Texture* img)
-{
-    SDL_Rect texture_rect = {.x=0, .y=0, .w=WIDTH, .h=HEIGHT};
-
-    SDL_Texture *start_btn = getImageTexture(sdlRenderer , "../start.bmp") ;
-    SDL_Rect start_rect = {.x=350 , .y=300 , .w=100 , .h=40};
-    SDL_Rect bigger_start_rect = {.x=340 , .y=290 , .w=120 , .h=50};
-
-    SDL_Texture *quit_btn = getImageTexture(sdlRenderer , "../start.bmp") ;
-    SDL_Rect quit_rect = {.x=350 , .y=500 , .w=100 , .h=40};
-    SDL_Rect bigger_quit_rect = {.x=340 , .y=490 , .w=120 , .h=50};
-
-    SDL_bool shall_exit_menu = SDL_FALSE ;
-    SDL_Event sdlEvent ;
-
-    while ( !shall_exit_menu )
-    {
-        SDL_RenderClear(sdlRenderer) ;
-        SDL_SetRenderDrawColor(sdlRenderer , 0x00 , 0x00 , 0x55 ,0xff) ;
-        SDL_RenderCopy(sdlRenderer, img , NULL, &texture_rect);
-        SDL_RenderCopy(sdlRenderer, start_btn , NULL, &start_rect);
-        SDL_RenderCopy(sdlRenderer, quit_btn , NULL, &quit_rect);
-
-
-        int x = sdlEvent.motion.x ;
-        int y = sdlEvent.motion.y ;
-        if ( x<450 && x>350 && y<350 && y>300)
-            SDL_RenderCopy(sdlRenderer, start_btn , NULL, &bigger_start_rect);
-        if ( x<450 && x>350 && y<540 && y>500 )
-            SDL_RenderCopy(sdlRenderer , quit_btn , NULL , &bigger_quit_rect) ;
-
-        while (SDL_PollEvent(&sdlEvent))
-        {
-            switch (sdlEvent.type) {
-                case SDL_QUIT :
-                    printf("user quitted game !") ;
-                    SDL_DestroyRenderer(sdlRenderer) ;
-                    SDL_DestroyWindow(sdlWindow) ;
-                    SDL_Quit() ;
-                    return 0;
-                case SDL_MOUSEBUTTONUP :
-                    if ( x<450 && x>350 && y<350 && y>300)
-                    {
-                        printf("game started !") ;
-                        SDL_Delay(500) ;
-                        return 1;
-                    }
-                    if ( x<450 && x>350 && y<540 && y>500 )
-                    {
-                        printf("user quitted game !") ;
-                        SDL_DestroyRenderer(sdlRenderer) ;
-                        SDL_DestroyWindow(sdlWindow) ;
-                        SDL_Quit() ;
-                        return 0;
-                    }
-                    break;
-            }
-        }
-        SDL_RenderPresent(sdlRenderer) ;
-    }
-}
-
 void InitializePotionGraphics ( SDL_Renderer* sdlRenderer , SDL_Texture** POTION_GRAPHIC)
 {
     POTION_GRAPHIC[0] = getImageTexture(sdlRenderer , "../img/red_potion.bmp") ;
@@ -137,6 +75,7 @@ int StartMenu ( SDL_Window *sdlWindow , SDL_Renderer* sdlRenderer )
     char* file_name = "../dat/tmp/cond.txt" ;
     FILE* should_con_file = fopen( file_name , "r") ;
     int to_continue = fgetc(should_con_file) ;
+    fclose(should_con_file) ;
 
 
     while ( cond ) {
@@ -156,20 +95,20 @@ int StartMenu ( SDL_Window *sdlWindow , SDL_Renderer* sdlRenderer )
             switch ( sdlEvent.type )
             {
                 case SDL_MOUSEBUTTONDOWN:
-                    if ( x>400 && x<560 && y>300 && y<360 && to_continue=='1')
+                    if ( x>400 && x<560 && y>300 && y<360 && to_continue=='1')  // continue game
                     {
                         return_code = 0 ;
                         cond = 0 ;
                     }
-                    else if ( x>400 && x<560 && y>380 && y<440 ) {
+                    else if ( x>400 && x<560 && y>380 && y<440 ) {              // new game
                         return_code = 1;
                         cond = 0;
                     }
-                    else if ( x>400 && x<560 && y>460 && y<520 ) {
+                    else if ( x>400 && x<560 && y>460 && y<520 ) {              // leaderboard
                         return_code = 2;
                         cond = 0;
                     }
-                    else if ( x>400 && x<560 && y>540 && y<600 ){
+                    else if ( x>400 && x<560 && y>540 && y<600 ){               // quit game
                         return_code = -1 ;
                         cond = 0 ;
                     }
@@ -196,37 +135,166 @@ int StartMenu ( SDL_Window *sdlWindow , SDL_Renderer* sdlRenderer )
 }
 
 
-
 // choosing map and starting new game
-void NewGame ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer )
+void NewGameSelection ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer )
 {
     SDL_Texture *back_img = getImageTexture(sdlRenderer , "../back.bmp") ;
     SDL_Rect back_rect = {.x=0 , .y=0 , .w=960 , .h=640 };
 
-    SDL_Texture *map1_img = getImageTexture(sdlRenderer , "../start.bmp") ;
-    SDL_Rect map1_rect  = {.x=120 , .y=200 , .w=60 , .h=60 };
+    SDL_Texture *generate = getImageTexture(sdlRenderer , "../img/map-selection/create.bmp") ;
 
-    SDL_Texture *map2_img = getImageTexture(sdlRenderer , "../start.bmp") ;
-    SDL_Rect map2_rect  = {.x=200 , .y=200 , .w=60 , .h=60 };
+
+    int y = 300 ;
+    SDL_Texture *small_3x_img = getImageTexture(sdlRenderer , "../img/map-selection/3x-small.bmp") ;
+    SDL_Rect small_3x_rect  = {.x=240 , .y=y , .w=120 , .h=30 };
+    SDL_Rect cr1 = {.x = 240 , .y=y+40 , .w = 120 , .h=30 };
+
+    SDL_Texture *normal_3x_img = getImageTexture(sdlRenderer , "../img/map-selection/3x-normal.bmp") ;
+    SDL_Rect normal_3x_rect  = {.x=420 , .y=y , .w=120 , .h=30 };
+    SDL_Rect cr2 = {.x = 420 , .y=y+40 , .w = 120 , .h=30 };
+
+    SDL_Texture *huge_3x_img = getImageTexture(sdlRenderer , "../img/map-selection/3x-huge.bmp") ;
+    SDL_Rect huge_3x_rect = {.x=600 , .y=y , .w=120 , .h = 30 };
+    SDL_Rect cr3 = {.x = 600 , .y=y+40 , .w = 120 , .h=30 };
+
+    y+= 120 ;
+    SDL_Texture *small_4x_img = getImageTexture(sdlRenderer , "../img/map-selection/3x-small.bmp") ;
+    SDL_Rect small_4x_rect  = {.x=240 , .y=y , .w=120 , .h=30 };
+    SDL_Rect cr4 = {.x = 240 , .y=y+40 , .w = 120 , .h=30 };
+
+
+    SDL_Texture *normal_4x_img = getImageTexture(sdlRenderer , "../img/map-selection/3x-normal.bmp") ;
+    SDL_Rect normal_4x_rect  = {.x=420 , .y=y , .w=120 , .h=30 };
+    SDL_Rect cr5 = {.x = 420 , .y=y+40 , .w = 120 , .h=30 };
+
+    SDL_Texture *huge_4x_img = getImageTexture(sdlRenderer , "../img/map-selection/3x-huge.bmp") ;
+    SDL_Rect huge_4x_rect = {.x=600 , .y=y , .w=120 , .h = 30 };
+    SDL_Rect cr6 = {.x = 600 , .y=y+40 , .w = 120 , .h=30 };
+
+    y+= 120 ;
+    SDL_Texture *small_5x_img = getImageTexture(sdlRenderer , "../img/map-selection/3x-small.bmp") ;
+    SDL_Rect small_5x_rect  = {.x=240 , .y=y , .w=120 , .h=30 };
+    SDL_Rect cr7 = {.x = 240 , .y=y+40 , .w = 120 , .h=30 };
+
+    SDL_Texture *normal_5x_img = getImageTexture(sdlRenderer , "../img/map-selection/3x-normal.bmp") ;
+    SDL_Rect normal_5x_rect  = {.x=420 , .y=y , .w=120 , .h=30 };
+    SDL_Rect cr8 = {.x = 420 , .y=y+40 , .w = 120 , .h=30 };
+
+    SDL_Texture *huge_5x_img = getImageTexture(sdlRenderer , "../img/map-selection/3x-huge.bmp") ;
+    SDL_Rect huge_5x_rect = {.x=600 , .y=y , .w=120 , .h = 30 };
+    SDL_Rect cr9 = {.x = 600 , .y=y+40 , .w = 120 , .h=30 };
+
 
     int cond = 1 ;
     while ( cond ) {
         SDL_RenderCopy(sdlRenderer, back_img, NULL, &back_rect);
-        SDL_RenderCopy(sdlRenderer, map1_img, NULL, &map1_rect);
-        SDL_RenderCopy(sdlRenderer, map2_img, NULL, &map2_rect);
+        SDL_RenderCopy(sdlRenderer, small_3x_img, NULL, &small_3x_rect);
+        SDL_RenderCopy(sdlRenderer, normal_3x_img, NULL, &normal_3x_rect);
+        SDL_RenderCopy(sdlRenderer , huge_3x_img , NULL , &huge_3x_rect) ;
+
+        SDL_RenderCopy(sdlRenderer, small_4x_img, NULL, &small_4x_rect);
+        SDL_RenderCopy(sdlRenderer, normal_4x_img, NULL, &normal_4x_rect);
+        SDL_RenderCopy(sdlRenderer , huge_4x_img , NULL , &huge_4x_rect) ;
+
+        SDL_RenderCopy(sdlRenderer, small_5x_img, NULL, &small_5x_rect);
+        SDL_RenderCopy(sdlRenderer, normal_5x_img, NULL, &normal_5x_rect);
+        SDL_RenderCopy(sdlRenderer , huge_5x_img , NULL , &huge_5x_rect) ;
+
+        SDL_RenderCopy(sdlRenderer , generate , NULL , &cr1) ;
+        SDL_RenderCopy(sdlRenderer , generate , NULL , &cr2) ;
+        SDL_RenderCopy(sdlRenderer , generate , NULL , &cr3) ;
+        SDL_RenderCopy(sdlRenderer , generate , NULL , &cr4) ;
+        SDL_RenderCopy(sdlRenderer , generate , NULL , &cr5) ;
+        SDL_RenderCopy(sdlRenderer , generate , NULL , &cr6) ;
+        SDL_RenderCopy(sdlRenderer , generate , NULL , &cr7) ;
+        SDL_RenderCopy(sdlRenderer , generate , NULL , &cr8) ;
+        SDL_RenderCopy(sdlRenderer , generate , NULL , &cr9) ;
+
+
+        y -= 240 ;
 
         SDL_Event sdlEvent ;
         while (SDL_PollEvent(&sdlEvent))
         {
-            Sint32 x = sdlEvent.motion.x ;
-            Sint32 y = sdlEvent.motion.y ;
+            Sint32 xcoord = sdlEvent.motion.x ;
+            Sint32 ycoord = sdlEvent.motion.y ;
+            y = 300 ;
             switch (sdlEvent.type) {
                 case SDL_MOUSEBUTTONDOWN:
-                    if ( x>120 && x<180 && y>200 && y<260 )
-                        LoadGame(sdlWindow , sdlRenderer , "../dat/tmp/map_data.dat" , 960 , 640 , 60 , 27 ) ;
-//                        StartNewGame(sdlWindow , sdlRenderer , 5 , 960 , 640 , 60 , 27 , 18 , 18 ) ;
-                    if ( x>200 && x<260 && y>200 && y<260 )
-                        StartNewGame(sdlWindow , sdlRenderer , 5 , 960 , 640 , 60 , 30 , 18 , 18 ) ;
+                    printf("%d %d\n" , xcoord , ycoord ) ;
+                    printf("y is : %d\n" , y ) ;
+                    if ( ycoord>y && ycoord<y+30 )          // ready 3x maps
+                    {
+                        if ( xcoord>240 && xcoord<360 )
+                            LoadGame(sdlWindow , sdlRenderer , "../dat/map/3x-small-map.dat" , 960 , 640 , 60 ) ;
+                        else if ( xcoord>420 && xcoord<540 )
+                            LoadGame(sdlWindow , sdlRenderer , "../dat/map/3x-normal-map.dat" , 960 , 640 , 60 ) ;
+                        else if ( xcoord>600 && xcoord<720 )
+                            LoadGame(sdlWindow , sdlRenderer , "../dat/map/3x-huge-map.dat" , 960 , 640 , 60 ) ;
+                    }
+
+                    if ( ycoord>y+40 && ycoord<y+70 )       // create 3x map
+                    {
+                        printf("create\n") ;
+                        if ( xcoord>240 && xcoord<360 )
+                            StartNewGame(sdlWindow , sdlRenderer , 4 , 960 , 640 , 60 , 33 , 14 , 14 ) ;
+
+                        else if ( xcoord>420 && xcoord<540 )
+                            StartNewGame(sdlWindow , sdlRenderer , 4 , 960 , 640 , 60 , 30 , 16 , 16 ) ;
+
+                        else if ( xcoord>600 && xcoord<720 )
+                            StartNewGame(sdlWindow , sdlRenderer , 4 , 960 , 640 , 60 , 27 , 20 , 20 ) ;
+
+                    }
+
+                    if ( ycoord>y+120 && ycoord<y+150 )          // ready 4x maps
+                    {
+                        if ( xcoord>240 && xcoord<360 )
+                            LoadGame(sdlWindow , sdlRenderer , "../dat/map/4x-small-map.dat" , 960 , 640 , 60 ) ;
+                        else if ( xcoord>420 && xcoord<540 )
+                            LoadGame(sdlWindow , sdlRenderer , "../dat/map/4x-normal-map.dat" , 960 , 640 , 60 ) ;
+                        else if ( xcoord>600 && xcoord<720 )
+                            LoadGame(sdlWindow , sdlRenderer , "../dat/map/4x-huge-map.dat" , 960 , 640 , 60 ) ;
+                    }
+
+                    if ( ycoord>y+160 && ycoord<y+190 )       // create 4x map
+                    {
+                        printf("create\n") ;
+                        if ( xcoord>240 && xcoord<360 )
+                            StartNewGame(sdlWindow , sdlRenderer , 5 , 960 , 640 , 60 , 33 , 14 , 14 ) ;
+
+                        else if ( xcoord>420 && xcoord<540 )
+                            StartNewGame(sdlWindow , sdlRenderer , 5 , 960 , 640 , 60 , 30 , 16 , 16 ) ;
+
+                        else if ( xcoord>600 && xcoord<720 )
+                            StartNewGame(sdlWindow , sdlRenderer , 5 , 960 , 640 , 60 , 27 , 20 , 20 ) ;
+
+                    }
+
+                    if ( ycoord>y+240 && ycoord<y+270 )          // ready 5x maps
+                    {
+                        if ( xcoord>240 && xcoord<360 )
+                            LoadGame(sdlWindow , sdlRenderer , "../dat/map/5x-small-map.dat" , 960 , 640 , 60 ) ;
+                        else if ( xcoord>420 && xcoord<540 )
+                            LoadGame(sdlWindow , sdlRenderer , "../dat/map/5x-normal-map.dat" , 960 , 640 , 60 ) ;
+                        else if ( xcoord>600 && xcoord<720 )
+                            LoadGame(sdlWindow , sdlRenderer , "../dat/map/5x-huge-map.dat" , 960 , 640 , 60 ) ;
+                    }
+
+                    if ( ycoord>y+280 && ycoord<y+410 )       // create 5x map
+                    {
+                        printf("create\n") ;
+                        if ( xcoord>240 && xcoord<360 )
+                            StartNewGame(sdlWindow , sdlRenderer , 6 , 960 , 640 , 60 , 33 , 14 , 14 ) ;
+
+                        else if ( xcoord>420 && xcoord<540 )
+                            StartNewGame(sdlWindow , sdlRenderer , 6 , 960 , 640 , 60 , 30 , 16 , 16 ) ;
+
+                        else if ( xcoord>600 && xcoord<720 )
+                            StartNewGame(sdlWindow , sdlRenderer , 6 , 960 , 640 , 60 , 27 , 20 , 20 ) ;
+
+                    }
+
                     break;
                 case SDL_QUIT:
                     return;

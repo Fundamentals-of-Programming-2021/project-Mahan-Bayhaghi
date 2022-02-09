@@ -504,47 +504,6 @@ int CheckWinState ( int* CELLS_OWNED , int NUM_PLAYERS )
     return -1 ;
 }
 
-
-//void SoldierConflictSolver ( OneSoldier** AllSoldiersArray )
-//{
-//    for ( int i=0 ; i<50 ; i++ )
-//    {
-//        if ( AllSoldiersArray[i] != NULL && AllSoldiersArray[i] != 0 )
-//        {
-//            for ( int j=i+1 ; j<50 ; j++)
-//            {
-//                if ( (AllSoldiersArray[j] != NULL || AllSoldiersArray[j] != 0)  &&
-//                     AllSoldiersArray[i][0].owner_id != AllSoldiersArray[j][0].owner_id )
-//                {
-//                    for ( int from_first = 0 ; from_first<AllSoldiersArray[i][0].num_of_all_soldiers ; from_first++)
-//                    {
-//                        for ( int from_second = 0 ; from_second<AllSoldiersArray[j][0].num_of_all_soldiers ; from_second++)
-//                        {
-//                            if ( fabs(AllSoldiersArray[i][from_first].x - AllSoldiersArray[j][from_second].x)<5 &&
-//                                 fabs(AllSoldiersArray[i][from_first].y - AllSoldiersArray[j][from_second].y)<5
-//                                 && ShouldConsiderSoldier(AllSoldiersArray[i][from_first] , AllSoldiersArray[i][0].verticalSpeed ,
-//                                                          AllSoldiersArray[i][0].horizontalSpeed)
-//                                 && ShouldConsiderSoldier(AllSoldiersArray[j][from_second] , AllSoldiersArray[j][0].verticalSpeed ,
-//                                                          AllSoldiersArray[j][0].horizontalSpeed) )
-//                            {
-//                                float f = AllSoldiersArray[i][0].power ;
-//                                float s = AllSoldiersArray[j][0].power ;
-//                                AllSoldiersArray[i][from_first].power -= s ;
-//                                AllSoldiersArray[j][from_second].power -= f ;
-//                                if ( AllSoldiersArray[i][from_first].power < 0  )
-//                                    AllSoldiersArray[i][from_first].power = 0 ;
-//                                if ( AllSoldiersArray[j][from_second].power < 0  )
-//                                    AllSoldiersArray[j][from_second].power = 0 ;
-//                                break;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-
 void SoldierConflictSolver ( OneSoldier** AllSoldiersArray )
 {
     for ( int i=0 ; i<50 ; i++ )
@@ -613,7 +572,6 @@ Potion CreatePotion ( int WIDTH , int HEIGHT )
     return returning_potion ;
 }
 
-
 void CheckForSoldierPotionConflict ( OneSoldier** AllSoldiersArray , Potion *live_time_potion
         , OnePotionEffect* AllPotionsEffect )
 {
@@ -640,7 +598,6 @@ void CheckForSoldierPotionConflict ( OneSoldier** AllSoldiersArray , Potion *liv
         }
     }
 }
-
 
 int CreatePotionEffect ( Potion potion_info , OnePotionEffect* AllPotionsArray , int Destination_owner )
 {
@@ -736,7 +693,6 @@ void ApplyPotionEffect ( OnePotionEffect* AllPotionsEffect , float* SPEED_ARRAY,
     }
 }
 
-
 void DisplayPotionsEffect ( SDL_Renderer* sdlRenderer , OnePotionEffect* AllPotionsEffect , SDL_Texture* POTION_GRAPHIC[8]
 , int NUM_PLAYERS)
 {
@@ -813,54 +769,16 @@ void DisplayScores ( SDL_Renderer* sdlRenderer , int NUM_PLAYERS , int* GLOBAL_P
 }
 
 
-void ExportMap ( land* map_arr , char* Map_name , int NUM_CELLS )
-{
-
-    FILE * map_txt = fopen(Map_name , "w+") ;
-    fprintf(map_txt , "%d/%d\n" , 4 , NUM_CELLS ) ;
-
-    for ( int i=0 ; i<NUM_CELLS ; i++ )
-        fprintf(map_txt , "%d~%d~%d~%d~%d~%d~%f\n" ,map_arr[i].counter ,map_arr[i].owner_id
-                             ,map_arr[i].x ,map_arr[i].y
-                             ,map_arr[i].IS_MILITARY ,map_arr[i].RELATED_MILITARY_COUNTER
-                             ,map_arr[i].soldiers_number ) ;
-
-    fclose(map_txt) ;
-}
-
-
-void ImportMap ( land* map_arr , char* Map_name , int* NUM_CELLS )
-{
-    FILE *map_txt = fopen(Map_name , "r") ;
-    fseek(map_txt , 0 , SEEK_SET ) ;
-    int temp ;
-    fscanf(map_txt , "%d/%d\n" , &temp , NUM_CELLS ) ;
-    printf("num of cells is file is : %d\n" , *NUM_CELLS ) ;
-    for ( int i=0 ; i< (*NUM_CELLS) ; i++) {
-        int a1 , a2 , a3 , a4 , a5 , a6 ;
-        float a7 ;
-        fscanf(map_txt, "%d~%d~%d~%d~%d~%d~%f\n", &a1, &a2, &a3, &a4, &a5, &a6, &a7);
-        printf("%d~%d~%d~%d~%d~%d~%f\n", a1, a2, a3, a4, a5, a6, a7) ;
-        map_arr[i].counter = a1 ;
-        map_arr[i].owner_id = a2 ;
-        map_arr[i].x = a3 ;
-        map_arr[i].y = a4 ;
-        map_arr[i].IS_MILITARY = a5 ;
-        map_arr[i].RELATED_MILITARY_COUNTER = a6 ;
-        map_arr[i].soldiers_number = a7 ;
-    }
-    fclose(map_txt) ;
-}
 
 // a function to export map data to a file in tmp
-void ExportData ( int NUM_CELLS , int NUM_PLAYERS
+void ExportData ( int NUM_CELLS , int NUM_PLAYERS , int HEXAGON_A
                   ,  land* map_arr , OneSoldier** AllSoldiersArray ,OnePotionEffect* AllPotionsArray )
 {
     FILE* tmp_data = fopen("../dat/tmp/map_data.dat" , "w+") ;
     if ( tmp_data == NULL )
         fprintf(stderr , "Couldn't open map_data.dat") ;
 
-    fprintf(tmp_data , "%d~%d\n" , NUM_PLAYERS , NUM_CELLS) ;
+    fprintf(tmp_data , "%d~%d~%d\n" , NUM_PLAYERS , NUM_CELLS , HEXAGON_A ) ;
     for ( int i=0 ; i<NUM_CELLS ; i++)
         fprintf(tmp_data , "%d~%d~%d~%d~%d~%d~%f\n" , map_arr[i].counter , map_arr[i].owner_id , map_arr[i].x , map_arr[i].y
                                                     , map_arr[i].IS_MILITARY , map_arr[i].RELATED_MILITARY_COUNTER , map_arr[i].soldiers_number) ;
@@ -871,13 +789,12 @@ void ExportData ( int NUM_CELLS , int NUM_PLAYERS
     for ( int i=0 ; i<50 ; i++)
         line_counter += (AllSoldiersArray[i] != 0) ;
 
-
     fprintf(tmp_data , "%d\n" , line_counter ) ;
     for ( int i=0 ; i<50 ; i++ ) {
         if ( AllSoldiersArray[i] != 0 ) {
             for (int temp = 0; temp < AllSoldiersArray[i][0].num_of_all_soldiers ; temp++ )
                 fprintf(tmp_data , "%d~%f~%f~%f~%f~%f~%f~%f~%f~%f~%d~%d\n"
-                                                , AllSoldiersArray[i][temp].owner_id , AllSoldiersArray[i][temp].power
+                                                , AllSoldiersArray[i][temp].owner_id , AllSoldiersArray[i][0].power
                                                 , AllSoldiersArray[i][temp].x , AllSoldiersArray[i][temp].y
                                                 , AllSoldiersArray[i][temp].origin_x , AllSoldiersArray[i][temp].origin_y
                                                 , AllSoldiersArray[i][temp].destination_x , AllSoldiersArray[i][temp].destination_y
@@ -898,15 +815,12 @@ ImportStructure ImportData ( int* NUM_CELLS , int* NUM_PLAYERS ,
                   , char* Address )
 {
     ImportStructure output ;
-
+    int HEXAGON_A ;
     FILE *map_file = fopen( Address , "r" ) ;
-    fscanf(map_file , "%d~%d\n" , NUM_PLAYERS , NUM_CELLS ) ;
+    fscanf(map_file , "%d~%d~%d\n" , NUM_PLAYERS , NUM_CELLS , &HEXAGON_A) ;
     int n = *NUM_CELLS ;
     int p = *NUM_PLAYERS ;
-    ///////////////////////////////////////////////////////////////////
 
-    ////////////////////////////////////////////////////////////////////
-    printf("step 1\n") ;
     for ( int i=0 ; i<n ; i++ ) {
         int co , ow_id , Is , Rel , x , y ;
         float sol_nu ;
@@ -916,16 +830,13 @@ ImportStructure ImportData ( int* NUM_CELLS , int* NUM_PLAYERS ,
         map_arr[i].IS_MILITARY = Is ; map_arr[i].RELATED_MILITARY_COUNTER = Rel ;
         map_arr[i].soldiers_number = sol_nu ;
     }
-    printf("step 2\n") ;
     n = *NUM_PLAYERS ;
     for ( int i=0 ; i<n ; i++ )
         fscanf(map_file , "%d~%d~%d\n" ,
                &(AllPotionsArray[i].potion_id) , &(AllPotionsArray[i].time_to_exist) , &(AllPotionsArray[i].owner_id)) ;
 
-    printf("step 3\n") ;
     int line_counter ;
     fscanf(map_file , "%d\n" , &line_counter ) ;
-    printf("step 4\n") ;
 
     for ( int i=0 ; i<line_counter ; i++ )
     {
@@ -933,7 +844,6 @@ ImportStructure ImportData ( int* NUM_CELLS , int* NUM_PLAYERS ,
         float pow , x , y , ox , oy , dx , dy , vs , hs  ;
         fscanf(map_file , "%d~%f~%f~%f~%f~%f~%f~%f~%f~%f~%d~%d\n"
                  ,&id , &pow , &x , &y , &ox , &oy , &dx , &dy , &vs , &hs , &nu_a , &so_id) ;
-        printf( "%d~%f~%f~%f~%f~%f~%f~%f~%f~%f~%d~%d\n" , id , pow , x , y , ox , oy , dx , dy , vs , hs , nu_a , so_id) ;
         AllSoldiersArray[i] = malloc( sizeof(OneSoldier) * nu_a ) ;
         AllSoldiersArray[i][0].owner_id = id ;  AllSoldiersArray[i][0].power = pow ;
         AllSoldiersArray[i][0].x = x ;          AllSoldiersArray[i][0].y = y ;
@@ -945,7 +855,6 @@ ImportStructure ImportData ( int* NUM_CELLS , int* NUM_PLAYERS ,
         for ( int temp=1 ; temp<nu_a; temp++ ) {
             fscanf(map_file, "%d~%f~%f~%f~%f~%f~%f~%f~%f~%f~%d~%d\n", &id, &pow, &x, &y, &ox, &oy, &dx, &dy, &vs, &hs,
                    &nu_a, &so_id);
-            printf("%d~%f~%f~%f~%f~%f~%f~%f~%f~%f~%d~%d\n", id, pow, x, y, ox, oy, dx, dy, vs, hs, nu_a, so_id);
             AllSoldiersArray[i][temp].owner_id = id ;  AllSoldiersArray[i][temp].power = pow ;
             AllSoldiersArray[i][temp].x = x ;          AllSoldiersArray[i][temp].y = y ;
             AllSoldiersArray[i][temp].origin_x = ox ;  AllSoldiersArray[i][temp].origin_y = oy ;
@@ -960,12 +869,10 @@ ImportStructure ImportData ( int* NUM_CELLS , int* NUM_PLAYERS ,
     output.map = map_arr ;
     output.soldiers = AllSoldiersArray ;
     output.potions = AllPotionsArray ;
-    printf("step 6\n") ;
     return output ;
 }
 
-// start new game e asli
-
+// a funtion to create new game
 int StartNewGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
                    int NUMBER_OF_PLAYERS , const int WIDTH , const int HEIGHT , const int FPS ,
                    const int HEXAGON_A , const int NUM_OF_ROWS , const int NUM_OF_COLS )
@@ -990,8 +897,8 @@ int StartNewGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
         return 0;
     }
 
-    map_arr = GENERATE_HEXAGON_RANDOM_MAP(NUMBER_OF_PLAYERS , 18 , 18 , map_arr , 27 ) ;
-    int NUM_OF_CELLS = ShowHexagonBackground(sdlRenderer , map_arr , 18*18 , 27 , castle_texture ) ;
+    map_arr = GENERATE_HEXAGON_RANDOM_MAP(NUMBER_OF_PLAYERS , NUM_OF_COLS , NUM_OF_ROWS , map_arr , HEXAGON_A ) ;
+    int NUM_OF_CELLS = ShowHexagonBackground(sdlRenderer , map_arr , NUM_OF_COLS*NUM_OF_ROWS , HEXAGON_A , castle_texture ) ;
 
     printf("num players is : %d and num cells is : %d\n" , NUMBER_OF_PLAYERS , NUM_OF_CELLS) ;
 
@@ -1007,7 +914,6 @@ int StartNewGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
     printf("pre update\n") ;
     // updating map info
     UpdateMapInfo(map_arr , NUM_OF_CELLS , CELLS_OWNED , LANDS_OWNED_COUNTERS , NUMBER_OF_PLAYERS ) ;
-
 
     // getting background picture as texture
     SDL_Texture *img = getImageTexture(sdlRenderer , "../back.bmp") ;
@@ -1088,7 +994,7 @@ int StartNewGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
             switch (sdlEvent.type)
             {
                 case SDL_QUIT:
-                    ExportData(NUM_OF_CELLS , NUMBER_OF_PLAYERS , map_arr , AllSoldiersArray , AllPotionsArray) ;
+                    ExportData(NUM_OF_CELLS , NUMBER_OF_PLAYERS , HEXAGON_A , map_arr , AllSoldiersArray , AllPotionsArray ) ;
                     printf("User quited the game successfully hhfjd!\n") ;
                     return 0 ;
                     shallExit = SDL_TRUE;
@@ -1158,16 +1064,16 @@ int StartNewGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
     SDL_DestroyWindow(sdlWindow) ;
 }
 
-
+// a function to load pre saved game
 int LoadGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
-               char* Address , int WIDTH , int HEIGHT , int FPS ,
-               int HEXAGON_A )
+               char* Address , int WIDTH , int HEIGHT , int FPS )
 {
     int NUM_OF_CELLS ;
     int NUMBER_OF_PLAYERS ;
+    int HEXAGON_A ;
 
-    FILE* map_data = fopen("../dat/tmp/map_data.dat" , "r") ;
-    fscanf(map_data , "%d~%d\n" , &NUMBER_OF_PLAYERS , &NUM_OF_CELLS )  ;
+    FILE* map_data = fopen(Address , "r") ;
+    fscanf(map_data , "%d~%d~%d\n" , &NUMBER_OF_PLAYERS , &NUM_OF_CELLS , &HEXAGON_A )  ;
     fclose(map_data) ;
 
 
@@ -1249,7 +1155,7 @@ int LoadGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
         if ( i%50 == 20 ) {
             for ( int j=2 ; j<NUMBER_OF_PLAYERS ; j++)
                 SystemMakeMovement(j, AllSoldiersArray, map_arr, CELLS_OWNED
-                        , LANDS_OWNED_COUNTERS, 5
+                        , LANDS_OWNED_COUNTERS, NUMBER_OF_PLAYERS
                         , SOLDIERS_POWER_ARRAY , IMMUNE_LANDS_ARRAY );
         }
 
@@ -1277,7 +1183,7 @@ int LoadGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
             switch (sdlEvent.type)
             {
                 case SDL_QUIT:
-                    ExportData(NUM_OF_CELLS , NUMBER_OF_PLAYERS , map_arr , AllSoldiersArray , AllPotionsArray) ;
+                    ExportData(NUM_OF_CELLS , NUMBER_OF_PLAYERS , HEXAGON_A , map_arr , AllSoldiersArray , AllPotionsArray) ;
                     printf("User quited the game successfully hhfjd!\n") ;
                     return 0 ;
                     shallExit = SDL_TRUE;
@@ -1347,3 +1253,4 @@ int LoadGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
     SDL_DestroyWindow(sdlWindow) ;
 
 }
+

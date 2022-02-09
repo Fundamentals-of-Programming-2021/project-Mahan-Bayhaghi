@@ -206,5 +206,4 @@ int StartNewGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
 
 // a function to load game
 int LoadGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
-               char* Address , const int WIDTH , const int HEIGHT , const int FPS ,
-               const int HEXAGON_A ) ;
+               char* Address , const int WIDTH , const int HEIGHT , const int FPS) ;
