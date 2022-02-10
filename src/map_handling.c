@@ -308,15 +308,15 @@ void ShowLinesOfSoldiers ( SDL_Renderer* sdlRenderer , OneSoldier** AllSoldiersA
 
                     // drawing soldiers on screen if they are actually out of their land
                     // or if they have any power (A.K.A power != 0 )
-                    float r = AllSoldiersArray[i][temp_c].power * 1.5 ;
+                    float r = AllSoldiersArray[i][temp_c].power * 3 ;
                     int should_draw = ShouldConsiderSoldier(AllSoldiersArray[i][temp_c] , AllSoldiersArray[i][0].verticalSpeed ,
                                                             AllSoldiersArray[i][0].horizontalSpeed) ;
 
                     if ( should_draw && r != 0 ) {
                         filledCircleColor(sdlRenderer, AllSoldiersArray[i][temp_c].x, AllSoldiersArray[i][temp_c].y,
-                                          2.5 * r, MAP_HANDLING_COLORS[AllSoldiersArray[i][0].owner_id]);
+                                          r, MAP_HANDLING_COLORS[AllSoldiersArray[i][0].owner_id]);
                         filledCircleColor(sdlRenderer, AllSoldiersArray[i][temp_c].x, AllSoldiersArray[i][temp_c].y,
-                                          2.5 * r, 0x044000000);
+                                          r, 0x044000000);
                     }
 
                     // conflict checker

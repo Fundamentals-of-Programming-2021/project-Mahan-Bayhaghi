@@ -17,19 +17,6 @@
 
 const int WIDTH = 960 ;
 const int HEIGHT = 640 ;
-const int FPS = 60 ;
-const int HEXAGON_A = 26 ;
-const int NUM_OF_ROWS = 20 ;
-const int NUM_OF_COLS = 18 ;
-
-const int NUMBER_OF_PLAYERS = 6 ;
-
-float SPEED_ARRAY [6] =             { 1 , 1 , 1 , 1 , 1 , 1};
-int PRODUCTION_RATE_ARRAY [6] =     { 0 , 2 , 2 , 2 , 2 , 2};
-float SOLDIERS_POWER_ARRAY [6] =    { 1 , 1 , 1 , 1 , 1 , 1};
-int IMMUNE_LANDS_ARRAY [6] =        { 0 , 0 , 0 , 0 , 0 , 0};
-int GLOBAL_POINTS_ARRAY[6] =        { 0 , 0 , 0 , 0 , 0 , 0 };
-SDL_Texture* POTION_GRAPHIC[8] ;
 
 int main()
 {
@@ -53,8 +40,6 @@ int main()
         SDL_Quit() ;
         return 0 ;
     }
-    printf("user logged in as user id [%d]\n" , user_id) ;
-
 
     int condition ;
     SDL_bool ShallExitGame = SDL_FALSE ;

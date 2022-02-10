@@ -354,7 +354,6 @@ int Login ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer )
     {
         int us_id , gp , ts ;
         fscanf(scores_txt , "%d~%d~%d\n" , &us_id , &gp , &ts ) ;
-        printf("%d~%d~%d\n" , us_id , gp , ts) ;
         AllScoresArray[i].user_id = us_id ;
         AllScoresArray[i].games_played = gp ;
         AllScoresArray[i].total_score = ts ;
