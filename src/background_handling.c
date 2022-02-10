@@ -159,6 +159,10 @@ void NewGameSelection ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int 
 
 
     int y = 300 ;
+
+    SDL_Texture *sample_map_img = getImageTexture(sdlRenderer , "../img/map-selection/sample-map.bmp") ;
+    SDL_Rect sample_map_rect = {.x=380 , .y=200 , .w=200 , .h=60};
+
     SDL_Texture *small_3x_img = getImageTexture(sdlRenderer , "../img/map-selection/3x-small.bmp") ;
     SDL_Rect small_3x_rect  = {.x=240 , .y=y , .w=120 , .h=30 };
     SDL_Rect cr1 = {.x = 240 , .y=y+40 , .w = 120 , .h=30 };
@@ -201,7 +205,10 @@ void NewGameSelection ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int 
 
     int cond = 1 ;
     while ( cond ) {
+
         SDL_RenderCopy(sdlRenderer, back_img, NULL, &back_rect);
+        SDL_RenderCopy(sdlRenderer , sample_map_img , NULL , &sample_map_rect ) ;
+
         SDL_RenderCopy(sdlRenderer, small_3x_img, NULL, &small_3x_rect);
         SDL_RenderCopy(sdlRenderer, normal_3x_img, NULL, &normal_3x_rect);
         SDL_RenderCopy(sdlRenderer , huge_3x_img , NULL , &huge_3x_rect) ;
@@ -235,6 +242,9 @@ void NewGameSelection ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int 
             y = 300 ;
             switch (sdlEvent.type) {
                 case SDL_MOUSEBUTTONDOWN:
+                    if ( ycoord>200 && ycoord<260 && xcoord>380 && xcoord<580 ) // load sample map
+                        LoadGame(sdlWindow , sdlRenderer , "../dat/map/sample-map.dat" , 960 , 640 , 60 , user_id) ;
+
                     if ( ycoord>y && ycoord<y+30 )          // ready 3x maps
                     {
                         if ( xcoord>240 && xcoord<360 )
@@ -328,7 +338,7 @@ void NewGameSelection ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int 
     SDL_free(&cr7) ;
     SDL_free(&cr8) ;
     SDL_free(&cr9) ;
-
+    SDL_free(&sample_map_rect) ;
     SDL_free(&back_rect) ;
 
     SDL_DestroyTexture(small_3x_img) ;
@@ -342,6 +352,7 @@ void NewGameSelection ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int 
     SDL_DestroyTexture(huge_5x_img)  ;
     SDL_DestroyTexture(generate)  ;
     SDL_DestroyTexture(back_img) ;
+    SDL_DestroyTexture(sample_map_img) ;
 }
 
 
@@ -365,6 +376,9 @@ int Login ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer )
 
     SDL_Texture *back = getImageTexture(sdlRenderer , "../img/saves/hex-back.bmp") ;
     SDL_Rect back_rect = {.x=0 , .y=0 , .w=960 , .h=1200};
+
+    SDL_Texture *login = getImageTexture(sdlRenderer , "../img/saves/login.bmp") ;
+    SDL_Rect login_rect = {.x=380 , .y=200 , .w=200 , .h=60};
 
 
     SDL_Texture *save_1_red = getImageTexture(sdlRenderer , "../img/saves/save-1-red.bmp") ;
@@ -440,7 +454,6 @@ int Login ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer )
             {
                 case SDL_QUIT:
                     cond = 0 ;
-//                    return -1 ;
 
                 case SDL_MOUSEBUTTONDOWN:
                     if ( xcoord > x && xcoord < x+160 )
@@ -484,6 +497,7 @@ int Login ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer )
             }
         }
 
+        SDL_RenderCopy(sdlRenderer , login , NULL , &login_rect) ;
         SDL_RenderPresent(sdlRenderer) ;
     }
 
@@ -499,7 +513,7 @@ int Login ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer )
     SDL_DestroyTexture(save_5_red) ;
     SDL_DestroyTexture(save_6_green) ;
     SDL_DestroyTexture(save_6_red) ;
-
+    SDL_DestroyTexture(login) ;
     SDL_DestroyTexture(back) ;
 
     SDL_free(&save_1) ;
@@ -508,7 +522,7 @@ int Login ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer )
     SDL_free(&save_4) ;
     SDL_free(&save_5) ;
     SDL_free(&save_6) ;
-
+    SDL_free(&login_rect) ;
     SDL_free(&back_rect) ;
 
     return id_to_check ;

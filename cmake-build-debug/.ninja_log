@@ -20,3 +20,17 @@
 17	734	6662247984486375	CMakeFiles/fop-project.dir/src/main.c.obj	effb9890535ec282
 8	878	6662247985932487	CMakeFiles/fop-project.dir/src/background_handling.c.obj	5217688817499c87
 878	2059	6662247997631433	fop-project.exe	eb5c889b5585a7
+4	2142	6662277559471119	CMakeFiles/fop-project.dir/src/background_handling.c.obj	5217688817499c87
+2143	6177	6662277599952746	fop-project.exe	eb5c889b5585a7
+5	5515	6662279920583871	CMakeFiles/fop-project.dir/src/background_handling.c.obj	5217688817499c87
+5516	6519	6662279930507531	fop-project.exe	eb5c889b5585a7
+6	4457	6662286984697968	CMakeFiles/fop-project.dir/src/background_handling.c.obj	5217688817499c87
+4458	7806	6662287021120510	fop-project.exe	eb5c889b5585a7
+7	3939	6662294089200536	CMakeFiles/fop-project.dir/src/background_handling.c.obj	5217688817499c87
+3940	6186	6662294111570618	fop-project.exe	eb5c889b5585a7
+8	3942	6662294597053028	CMakeFiles/fop-project.dir/src/background_handling.c.obj	5217688817499c87
+3943	6096	6662294619094003	fop-project.exe	eb5c889b5585a7
+4	5458	6662295861341097	CMakeFiles/fop-project.dir/src/background_handling.c.obj	5217688817499c87
+5458	6416	6662295870805763	fop-project.exe	eb5c889b5585a7
+6	2397	6662299327658199	CMakeFiles/fop-project.dir/src/background_handling.c.obj	5217688817499c87
+2398	5610	6662299359782199	fop-project.exe	eb5c889b5585a7
