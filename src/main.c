@@ -91,17 +91,16 @@ int main()
 
         if ( condition == 2 )            // show leaderboard
         {
+            ShowLeaderboard(sdlWindow , sdlRenderer ) ;
             printf("show leaderboard\n") ;
         }
 
         if ( condition == -1 )          // quit the game
-        {
             ShallExitGame = SDL_TRUE ;
-            SDL_DestroyRenderer(sdlRenderer) ;
-            SDL_DestroyWindow(sdlWindow) ;
-            SDL_Quit() ;
-            return 0 ;
-        }
     }
+    SDL_DestroyRenderer(sdlRenderer) ;
+    SDL_DestroyWindow(sdlWindow) ;
+    SDL_Quit() ;
+    return 0 ;
 }
 

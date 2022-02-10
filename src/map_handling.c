@@ -613,7 +613,7 @@ void DisplayPotionsEffect ( SDL_Renderer* sdlRenderer , OnePotionEffect* AllPoti
     char* EFFECTS[8] = { "SUPER FAST !" , "HALF SPEED" , "HALF POWER" , "SUPER STRONG !"
                          , "JUST WOW !" , "GOOD CHANCE !" , "HARDWORKING" , "IMMUNE"} ;
     int y_to_write = 20 ;
-    int x_to_write = 180 ;
+    int x_to_write = 220 ;
     for ( int i=0 ; i<NUM_PLAYERS; i++)
     {
         if ( AllPotionsEffect[i].potion_id != -1 )
@@ -623,7 +623,7 @@ void DisplayPotionsEffect ( SDL_Renderer* sdlRenderer , OnePotionEffect* AllPoti
             Sint16 vx[4] = { x_to_write , x_to_write+AllPotionsEffect[i].time_to_exist , x_to_write+AllPotionsEffect[i].time_to_exist , x_to_write  } ;
             Sint16 vy[4] = { y_to_write , y_to_write , y_to_write+10 , y_to_write+10  };
             filledPolygonColor(sdlRenderer , vx , vy , 4 , MAP_HANDLING_COLORS[AllPotionsEffect[i].owner_id]) ;
-            stringColor(sdlRenderer , x_to_write+AllPotionsEffect[i].time_to_exist + 10 , y_to_write , EFFECTS[AllPotionsEffect[i].potion_id] , 0xff000000) ;
+            stringColor(sdlRenderer , x_to_write+AllPotionsEffect[i].time_to_exist + 10 , y_to_write , EFFECTS[AllPotionsEffect[i].potion_id] , 0xbbffffff) ;
             y_to_write += 20 ;
         }
     }
@@ -672,14 +672,9 @@ void UpdateScore (land *map_arr , int* CELLS_OWNED , int** LANDS_OWNED_COUNTERS 
 
 void DisplayScores ( SDL_Renderer* sdlRenderer , int NUM_PLAYERS , int* GLOBAL_POINTS_ARRAY )
 {
-    int x = 150 ; int y=40 ;
-    for ( int i=1 ; i<NUM_PLAYERS ; i++ )
-    {
-        char* score = malloc(sizeof(char) * 20 ) ;
-        sprintf(score , "id[%d] : %d" , i , GLOBAL_POINTS_ARRAY[i]) ;
-        stringColor(sdlRenderer , x , y , score , 0xff000000) ;
-        x += 100 ;
-    }
+    char* score = malloc(sizeof(char) * 20 ) ;
+    sprintf(score , "total score : %5d" , GLOBAL_POINTS_ARRAY[1]) ;
+    stringColor(sdlRenderer , 30 , 20 , score , 0xaaffffff) ;
 }
 
 
@@ -971,8 +966,10 @@ int StartNewGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
             for ( int i=1 ; i<NUMBER_OF_PLAYERS ; i++)
                 printf("user %d with score of %d\n" , i , GLOBAL_POINTS_ARRAY[i]) ;
             UpdateLeaderboard(GLOBAL_POINTS_ARRAY , NUMBER_OF_PLAYERS , user_id) ;
+            FILE* cond_txt = fopen("../dat/tmp/cond.txt" , "w") ;
+            fputc('0' , cond_txt ) ;
+            fclose(cond_txt) ;
             shallExit = SDL_TRUE ;
-//            return 0 ;
         }
         DisplayScores(sdlRenderer , NUMBER_OF_PLAYERS , GLOBAL_POINTS_ARRAY ) ;
         DisplayPotionsEffect(sdlRenderer , AllPotionsArray , POTION_GRAPHIC , NUMBER_OF_PLAYERS) ;
@@ -1083,7 +1080,6 @@ int LoadGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
         i %= 200000 ;
 
         SDL_RenderCopy(sdlRenderer , img , NULL , &texture_rect) ;
-//        DrawBackground(sdlRenderer , img , HEIGHT , WIDTH) ;
         ShowHexagonBackground( sdlRenderer , map_arr , NUM_OF_CELLS , HEXAGON_A , castle_texture) ;
 
         if ( i%50 == 20 ) {
@@ -1165,7 +1161,9 @@ int LoadGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
             printf("player %d has won \n" , CheckWinState(CELLS_OWNED , NUMBER_OF_PLAYERS)) ;
             GLOBAL_POINTS_ARRAY[CheckWinState(CELLS_OWNED , NUMBER_OF_PLAYERS)] += 400 ;
             UpdateLeaderboard(GLOBAL_POINTS_ARRAY , NUMBER_OF_PLAYERS , user_id) ;
-//            return 0 ;
+            FILE* cond_txt = fopen("../dat/tmp/cond.txt" , "w") ;
+            fputc('0' , cond_txt ) ;
+            fclose(cond_txt) ;
             shallExit = SDL_TRUE ;
         }
 

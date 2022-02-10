@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 //
 // Created by Mahan on 1/30/2022.
@@ -26,6 +27,13 @@ typedef struct OneUser {
     int user_id ;
     char* user_name ;
 } OneUser ;
+
+typedef struct OneStanding {
+    char* name ;
+    char* type ;
+    int games_played ;
+    int total_score ;
+} OneStanding ;
 
 void test_func() ;
 
@@ -58,4 +66,8 @@ void GetName ( SDL_Window*  sdlWindow , SDL_Renderer* sdlRenderer , int id_to_ch
 
 // a function to update leaderboardd
 void UpdateLeaderboard ( int* GLOBAL_POINTS_ARRAY , int NUM_PLAYERS , int user_id ) ;
+
+
+// a function to show leaderboard
+void ShowLeaderboard ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer ) ;
 
