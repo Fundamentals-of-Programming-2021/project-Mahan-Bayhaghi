@@ -16,6 +16,16 @@
 #include <time.h>
 #include <math.h>
 
+typedef struct OneScore {
+    int user_id ;
+    int games_played ;
+    int total_score ;
+} OneScore ;
+
+typedef struct OneUser {
+    int user_id ;
+    char* user_name ;
+} OneUser ;
 
 void test_func() ;
 
@@ -33,7 +43,19 @@ void IntroScreen ( SDL_Renderer* sdlRenderer , int WIDTH , int HEIGHT , SDL_Text
 
 
 // a function to show start menu
-int StartMenu ( SDL_Window *sdlWindow , SDL_Renderer* sdlRenderer) ;
+int StartMenu ( SDL_Window *sdlWindow , SDL_Renderer* sdlRenderer , int user_id ) ;
 
 // page you see when starting a new game
-void NewGameSelection ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer ) ;
+void NewGameSelection ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer , int user_id ) ;
+
+// login to game
+int Login ( SDL_Window* sdlWindow , SDL_Renderer* sdlRenderer ) ;
+
+
+// a function to get username
+void GetName ( SDL_Window*  sdlWindow , SDL_Renderer* sdlRenderer , int id_to_check ) ;
+
+
+// a function to update leaderboardd
+void UpdateLeaderboard ( int* GLOBAL_POINTS_ARRAY , int NUM_PLAYERS , int user_id ) ;
+

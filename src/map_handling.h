@@ -200,10 +200,10 @@ void GetUsername ( char* username ) ;
 
 int StartNewGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
                    const int NUMBER_OF_PLAYERS , const int WIDTH , const int HEIGHT , const int FPS ,
-                   const int HEXAGON_A , const int NUM_OF_ROWS , const int NUM_OF_COLS ) ;
+                   const int HEXAGON_A , const int NUM_OF_ROWS , const int NUM_OF_COLS , int user_id ) ;
 
 
 
 // a function to load game
 int LoadGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
-               char* Address , const int WIDTH , const int HEIGHT , const int FPS) ;
+               char* Address , const int WIDTH , const int HEIGHT , const int FPS , int user_id) ;
