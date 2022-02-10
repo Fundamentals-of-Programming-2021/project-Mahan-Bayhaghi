@@ -5,7 +5,7 @@
 #include "map_handling.h"
 #include "background_handling.h"
 
-Uint32 MAP_HANDLING_COLORS[6] = { 0xffa39d8c , 0xff3434eb , 0xff6ebe34 , 0xffb00500 , 0xff0059ff , 0xff00ffff};
+Uint32 MAP_HANDLING_COLORS[6] = { 0xffa39d8c , 0xff3434eb , 0xff6ebe34 , 0xffb00500 , 0xff0059ff , 0xff50ffff};
                                     // grey          // blue          // green        // red        // orange       // yellow
 
 float MAIN_SPEED = 6.0 ;
@@ -18,7 +18,8 @@ int ShowHexagonBackground ( SDL_Renderer* sdlRenderer , land* map , int counter 
     for ( int i=0 ; i<counter ; i++)
     {
         if ( map[i].x == 0 || map[i].y == 0 )
-            return i ;
+            return i;
+
         Sint16 center_x = map[i].x ;
         Sint16 center_y = map[i].y ;
         Sint16 *vx = malloc(6 * sizeof(Sint16)) ;
@@ -37,7 +38,7 @@ int ShowHexagonBackground ( SDL_Renderer* sdlRenderer , land* map , int counter 
 
         char* soldiers_number = malloc(sizeof(char) * 4) ;
         sprintf(soldiers_number , "%3.0f" , map[i].soldiers_number) ;
-        stringColor(sdlRenderer , center_x-12 , center_y+5 , soldiers_number , 0x22ffffff) ;
+        stringColor(sdlRenderer , center_x-12 , center_y+5 , soldiers_number , 0x77000000) ;
     }
 }
 
@@ -403,19 +404,27 @@ void SystemMakeMovement ( int owner_id , OneSoldier** AllSoldiersArray , land* m
 
 int CheckWinState ( int* CELLS_OWNED , int NUM_PLAYERS )
 {
-    int number_of_zeroes = 0 ;
-    for ( int i=1 ; i<NUM_PLAYERS ; i++)
-        number_of_zeroes += (CELLS_OWNED[i] == 0) ;
-
-    if ( number_of_zeroes == (NUM_PLAYERS-2) )
-    {
-        for ( int i=1 ; i<NUM_PLAYERS ; i++)
-        {
-            if ( CELLS_OWNED[i] != 0 )
-                return  i ;
+    if ( CELLS_OWNED[1] != 0 ) {    // player 1 hasn't lost yet !
+        int number_of_zeroes = 0;
+        for (int i = 1; i < NUM_PLAYERS; i++)
+            number_of_zeroes += (CELLS_OWNED[i] == 0);
+        if (number_of_zeroes == (NUM_PLAYERS - 2)) {
+            for (int i = 1; i < NUM_PLAYERS; i++) {
+                if (CELLS_OWNED[i] != 0)
+                    return i;
+            }
         }
+        return -1;
     }
-    return -1 ;
+    else {                          // oops ! player 1 has lost
+        int best_player=2 ;
+        for ( int i=2 ; i<NUM_PLAYERS ; i++ )
+        {
+            if (CELLS_OWNED[i] > CELLS_OWNED[best_player] )
+                best_player = i ;
+        }
+        return best_player ;
+    }
 }
 
 void SoldierConflictSolver ( OneSoldier** AllSoldiersArray )
@@ -566,10 +575,10 @@ void ApplyPotionEffect ( OnePotionEffect* AllPotionsEffect , float* SPEED_ARRAY,
                     SPEED_ARRAY[i] = 2 ;
                     break;
                 case 1 :    // 0.5X SPEED   // RED POTION
-                    SPEED_ARRAY[i] = 0.5 ;
+                    SPEED_ARRAY[i] = 0.5f ;
                     break;
                 case 2 :    // 0.5X POWER   // BLUE POTION
-                    SOLDIERS_POWER_ARRAY[i] = 0.5 ;
+                    SOLDIERS_POWER_ARRAY[i] = 0.5f ;
                     break;
                 case 3 :    // 2X POWER
                     SOLDIERS_POWER_ARRAY[i] = 2 ;   // ORANGE POTION
@@ -586,7 +595,7 @@ void ApplyPotionEffect ( OnePotionEffect* AllPotionsEffect , float* SPEED_ARRAY,
                     for ( int temp=1 ; temp<NUM_PLAYERS ; temp++ )
                     {
                         if ( temp != i && AllPotionsEffect[temp].potion_id == -1 )
-                            SPEED_ARRAY[temp] = 0.5 ;
+                            SPEED_ARRAY[temp] = 0.5f ;
                     }
                     global_act = 1 ;
                     break;
@@ -812,13 +821,8 @@ int StartNewGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
         return 0;
     }
 
-
     map_arr = GENERATE_HEXAGON_RANDOM_MAP(NUMBER_OF_PLAYERS , NUM_OF_COLS , NUM_OF_ROWS , map_arr , HEXAGON_A ) ;
     int NUM_OF_CELLS = ShowHexagonBackground(sdlRenderer , map_arr , NUM_OF_COLS*NUM_OF_ROWS , HEXAGON_A , castle_texture ) ;
-
-    printf("num players is : %d and num cells is : %d\n" , NUMBER_OF_PLAYERS , NUM_OF_CELLS) ;
-
-
 
     // an array to save number of cells owned by each owner_id
     int* CELLS_OWNED = calloc( NUMBER_OF_PLAYERS , sizeof(int)) ;
@@ -828,17 +832,13 @@ int StartNewGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
     for ( int i=0 ; i<NUMBER_OF_PLAYERS ; i++)
         LANDS_OWNED_COUNTERS[i] = calloc( NUM_OF_CELLS , sizeof(int)) ;
 
-    printf("pre update\n") ;
+
     // updating map info
     UpdateMapInfo(map_arr , NUM_OF_CELLS , CELLS_OWNED , LANDS_OWNED_COUNTERS , NUMBER_OF_PLAYERS ) ;
 
     // getting background picture as texture
     SDL_Texture *img = getImageTexture(sdlRenderer , "../back.bmp") ;
     SDL_Rect texture_rect = {.x=0, .y=0, .w=WIDTH, .h=HEIGHT};
-
-    // getting go_back_to_menu picture as texture
-    SDL_Texture *back_to_menu = getImageTexture(sdlRenderer , "../go_back_to_menu.bmp") ;
-    SDL_Rect back_to_menu_texture_rect = {.x=0, .y=0, .w=40, .h=40};
 
     // Initializing potion textures
     InitializePotionGraphics(sdlRenderer , POTION_GRAPHIC) ;
@@ -878,7 +878,6 @@ int StartNewGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
         i %= 200000 ;
 
         SDL_RenderCopy(sdlRenderer , img , NULL , &texture_rect ) ;
-//        DrawBackground(sdlRenderer , img , HEIGHT , WIDTH) ;
         ShowHexagonBackground( sdlRenderer , map_arr , NUM_OF_CELLS , HEXAGON_A , castle_texture) ;
 
         if ( i%50 == 20 ) {
@@ -914,18 +913,12 @@ int StartNewGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
             {
                 case SDL_QUIT:
                     ExportData(NUM_OF_CELLS , NUMBER_OF_PLAYERS , HEXAGON_A , map_arr , AllSoldiersArray , AllPotionsArray ) ;
-                    printf("all data is saved successfully\n") ;
-                    printf("User quited the game successfully!\n") ;
+                    fprintf(stdout , "all data is saved successfully\n") ;
+                    fprintf(stdout , "User quited the game successfully!\n") ;
                     shallExit = SDL_TRUE;
-//                    return 0 ;
                     break;
 
                 case SDL_MOUSEBUTTONDOWN:
-                    if ( x<40 && y<40 ) {
-                        shallExit = SDL_TRUE;
-                        break;
-                    }
-
                     clicked_cell_info = GiveClickedCellInfo(x , y , map_arr , NUM_OF_CELLS , HEXAGON_A) ;
                     if ( clicked_cell_info.owner_id == 1 && click_status == 0 )
                     {
@@ -961,10 +954,8 @@ int StartNewGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
         UpdateScore(map_arr , CELLS_OWNED , LANDS_OWNED_COUNTERS , NUMBER_OF_PLAYERS , GLOBAL_POINTS_ARRAY) ;
         if ( CheckWinState(CELLS_OWNED , NUMBER_OF_PLAYERS) != -1 )
         {
-            printf("player %d has won \n" , CheckWinState(CELLS_OWNED , NUMBER_OF_PLAYERS)) ;
+            fprintf(stdout , "player %d has won \n" , CheckWinState(CELLS_OWNED , NUMBER_OF_PLAYERS)) ;
             GLOBAL_POINTS_ARRAY[CheckWinState(CELLS_OWNED , NUMBER_OF_PLAYERS)] += 400 ;
-            for ( int i=1 ; i<NUMBER_OF_PLAYERS ; i++)
-                printf("user %d with score of %d\n" , i , GLOBAL_POINTS_ARRAY[i]) ;
             UpdateLeaderboard(GLOBAL_POINTS_ARRAY , NUMBER_OF_PLAYERS , user_id) ;
             FILE* cond_txt = fopen("../dat/tmp/cond.txt" , "w") ;
             fputc('0' , cond_txt ) ;
@@ -979,17 +970,20 @@ int StartNewGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
     }
 
 
-    // Freeing some memory for god's sake
     free(AllSoldiersArray) ;
     free(AllPotionsArray) ;
     free(map_arr) ;
     free(CELLS_OWNED) ;
     free(LANDS_OWNED_COUNTERS) ;
 
-    // Destroying window and program //
+    // Freeing some memory for god's sake
     SDL_DestroyTexture(img) ;
-    SDL_DestroyTexture(back_to_menu) ;
     SDL_DestroyTexture(castle_texture) ;
+    for ( int i=0 ; i<8 ; i++)
+        SDL_DestroyTexture(POTION_GRAPHIC[i]) ;
+
+    SDL_free(&texture_rect) ;
+    SDL_free(&potion_rect) ;
 
     return 0 ;
 }
@@ -1046,9 +1040,6 @@ int LoadGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
     SDL_Texture *img = getImageTexture(sdlRenderer , "../back.bmp") ;
     SDL_Rect texture_rect = {.x=0, .y=0, .w=WIDTH, .h=HEIGHT};
 
-    // getting go_back_to_menu picture as texture
-    SDL_Texture *back_to_menu = getImageTexture(sdlRenderer , "../go_back_to_menu.bmp") ;
-    SDL_Rect back_to_menu_texture_rect = {.x=0, .y=0, .w=40, .h=40};
 
     // Initializing potion textures
     InitializePotionGraphics(sdlRenderer , POTION_GRAPHIC) ;
@@ -1058,7 +1049,6 @@ int LoadGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
     // game primary counter
     int i=1 ;
     SDL_bool shallExit = SDL_FALSE ;
-    SDL_bool shallShowMenu = SDL_TRUE ;
     // variable to check mouse status
     int click_status = 0 ;
     // bunch of needed variables for user interaction
@@ -1073,15 +1063,16 @@ int LoadGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
 
 
     //////////////// game /////////////////
-    printf("pregame\n") ;
     while ( !shallExit )
     {
         UpdateMapInfo(map_arr , NUM_OF_CELLS , CELLS_OWNED , LANDS_OWNED_COUNTERS , NUMBER_OF_PLAYERS) ;
         i %= 200000 ;
 
+        // main background of game //
         SDL_RenderCopy(sdlRenderer , img , NULL , &texture_rect) ;
         ShowHexagonBackground( sdlRenderer , map_arr , NUM_OF_CELLS , HEXAGON_A , castle_texture) ;
 
+        // system attacks //
         if ( i%50 == 20 ) {
             for ( int j=2 ; j<NUMBER_OF_PLAYERS ; j++)
                 SystemMakeMovement(j, AllSoldiersArray, map_arr, CELLS_OWNED
@@ -1089,9 +1080,11 @@ int LoadGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
                         , SOLDIERS_POWER_ARRAY , IMMUNE_LANDS_ARRAY );
         }
 
+        // add soldiers //
         if ( i%80 == 0 )
             AddSoldiers(map_arr , NUM_OF_CELLS , PRODUCTION_RATE_ARRAY ) ;
 
+        // maybe some good potion ! //
         if ( i%550 == 50 )
             live_time_potion = CreatePotion(WIDTH , HEIGHT) ;
 
@@ -1104,6 +1097,7 @@ int LoadGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
         SDL_Event sdlEvent;
         land clicked_cell_info ;
 
+        // assist player //
         if ( click_status == 1 )
             AimAssist(sdlRenderer , sdlEvent , map_arr , NUM_OF_CELLS , HEXAGON_A , Origin_x , Origin_y ) ;
 
@@ -1114,16 +1108,12 @@ int LoadGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
             {
                 case SDL_QUIT:
                     ExportData(NUM_OF_CELLS , NUMBER_OF_PLAYERS , HEXAGON_A , map_arr , AllSoldiersArray , AllPotionsArray) ;
-                    printf("all data is saved successfully\n") ;
-                    printf("User quited the game successfully !\n") ;
-//                    return 0 ;
+                    fprintf(stdout , "all data is saved successfully\n") ;
+                    fprintf(stdout , "User quited the game successfully !\n") ;
                     shallExit = SDL_TRUE;
                     break;
 
                 case SDL_MOUSEBUTTONDOWN:
-                    if ( x<40 && y<40 )
-                        return 0;
-
                     clicked_cell_info = GiveClickedCellInfo(x , y , map_arr , NUM_OF_CELLS , HEXAGON_A) ;
                     if ( clicked_cell_info.owner_id == 1 && click_status == 0 )
                     {
@@ -1152,13 +1142,13 @@ int LoadGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
             }
         }
 
-        SoldierConflictSolver(AllSoldiersArray ) ;
+        SoldierConflictSolver(AllSoldiersArray) ;
         ShowLinesOfSoldiers(sdlRenderer , AllSoldiersArray , HEXAGON_A , map_arr , SPEED_ARRAY) ;
 
         UpdateScore(map_arr , CELLS_OWNED , LANDS_OWNED_COUNTERS , NUMBER_OF_PLAYERS , GLOBAL_POINTS_ARRAY) ;
         if ( CheckWinState(CELLS_OWNED , NUMBER_OF_PLAYERS) != -1 )
         {
-            printf("player %d has won \n" , CheckWinState(CELLS_OWNED , NUMBER_OF_PLAYERS)) ;
+            fprintf(stdout , "player %d has won \n" , CheckWinState(CELLS_OWNED , NUMBER_OF_PLAYERS)) ;
             GLOBAL_POINTS_ARRAY[CheckWinState(CELLS_OWNED , NUMBER_OF_PLAYERS)] += 400 ;
             UpdateLeaderboard(GLOBAL_POINTS_ARRAY , NUMBER_OF_PLAYERS , user_id) ;
             FILE* cond_txt = fopen("../dat/tmp/cond.txt" , "w") ;
@@ -1182,8 +1172,12 @@ int LoadGame ( SDL_Window *sdlWindow , SDL_Renderer *sdlRenderer ,
 
     // Freeing some memory for god's sake
     SDL_DestroyTexture(img) ;
-    SDL_DestroyTexture(back_to_menu) ;
     SDL_DestroyTexture(castle_texture) ;
+    for ( int i=0 ; i<8 ; i++)
+        SDL_DestroyTexture(POTION_GRAPHIC[i]) ;
+
+    SDL_free(&texture_rect) ;
+    SDL_free(&potion_rect) ;
 
     return 0 ;
 }

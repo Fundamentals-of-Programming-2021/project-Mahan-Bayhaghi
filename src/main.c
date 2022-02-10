@@ -1,7 +1,5 @@
 #include <SDL.h>
 #include <SDL2_gfxPrimitives.h>
-#include <SDL_mixer.h>
-#include <SDL_audio.h>
 
 #ifdef main
 #undef main
@@ -40,16 +38,6 @@ int main()
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO) < 0) {
         fprintf(stderr , "SDL could not initialize: SDL_Error: %s\n", SDL_GetError() ) ;
         return 0;
-    }
-
-    // Initializing and displaying available audio drivers
-    for (int i = 0; i < SDL_GetNumAudioDrivers(); ++i) {
-        const char* driver_name = SDL_GetAudioDriver(i);
-        printf("audio driver name : %s\n" , driver_name) ;
-        if (SDL_AudioInit(driver_name)) {
-            fprintf(stderr , "Audio driver failed to initialize: %s\n" , driver_name) ;
-            continue;
-        }
     }
     /////////////////////////////////////////////////////////////
 
